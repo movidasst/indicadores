@@ -59,6 +59,10 @@
             .break-inside-avoid { break-inside: avoid; }
             .shadow-sm, .shadow-lg, .shadow-xl { box-shadow: none !important; border: 1px solid #cbd5e1; }
         }
+        
+        /* Ocultar barra de desplazamiento en filtros */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
@@ -80,6 +84,7 @@
 
         // --- BASE DE DATOS MAESTRA ---
         const DEFAULT_LIBRARY = [
+            // VISION ZERO
             { id: 'VZ-1.1', source: 'Vision Zero', name: 'Compromiso Visible del Liderazgo', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 80, desc: 'Mide qué tan activos son los jefes en terreno.', help: { what: 'Muestra si los gerentes realmente bajan a planta.', why: 'El ejemplo arrastra y muestra compromiso real.', labelNum: 'Visitas realizadas', labelDen: 'Visitas programadas', example: 'El gerente hizo 2 de 4 visitas mensuales.' } },
             { id: 'VZ-1.2', source: 'Vision Zero', name: 'Liderazgo Competente', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 100, desc: 'Nuevos directivos con criterios SST.', help: { what: '% de jefes contratados evaluando sus competencias en seguridad.', why: 'Evita ingresar líderes que no valoran la prevención.', labelNum: 'Líderes evaluados en SST', labelDen: 'Total líderes contratados', example: 'Se contrataron 3 gerentes, a los 3 se les evaluó en SST.' } },
             { id: 'VZ-2.1', source: 'Vision Zero', name: 'Eficacia en Control de Riesgos', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: 'Verifica si los controles realmente funcionan.', help: { what: '% de medidas de control inspeccionadas que son efectivas.', why: 'Tener el control en papel no basta, debe funcionar en terreno.', labelNum: 'Controles efectivos', labelDen: 'Controles evaluados', example: 'De 10 guardas de seguridad revisadas, 9 funcionaban bien.' } },
@@ -109,7 +114,13 @@
             { id: 'ISO-11', source: 'ISO 45004', name: 'Ejecución de Auditorías', type: 'Proactivo', level: 'Táctico', function: 'Evaluación', unit: '%', calc: 'percentage', target: 100, desc: 'Avance del programa anual de auditorías.', help: { what: 'Auditorías internas y externas realizadas vs planificadas.', why: 'Garantiza la revisión periódica del sistema de gestión.', labelNum: 'Auditorías ejecutadas', labelDen: 'Auditorías programadas', example: 'Hicimos 1 de 1 auditoría programada este trimestre.' } },
             { id: 'ISO-12', source: 'ISO 45004', name: 'Clima / Cultura de Seguridad', type: 'Proactivo', level: 'Estratégico', function: 'Cultura', unit: 'Pts', calc: 'average', target: 85, desc: 'Puntuación de encuestas de percepción de seguridad.', help: { what: 'Promedio de calificación de los trabajadores sobre la seguridad.', why: 'La percepción subjetiva es un gran predictor de desempeño.', labelNum: 'Suma total de puntajes', labelDen: 'N° Encuestas tabuladas', example: '4250 puntos sumados entre 50 trabajadores encuestados.' } },
             { id: 'ISO-13', source: 'ISO 45004', name: 'Índice Enfermedad Profesional', type: 'Reactivo', level: 'Estratégico', function: 'Salud', unit: 'IEP', calc: 'rate', target: 0, desc: 'Tasa de enfermedades laborales diagnosticadas.', help: { what: 'Nuevas enfermedades ocupacionales por constante K.', why: 'Mide el impacto a largo plazo de las condiciones de trabajo.', labelNum: 'N° Casos de Enfermedad', labelDen: 'Total Horas Trabajadas', example: '0 casos diagnosticados este mes.' } },
-            { id: 'ISO-14', source: 'ISO 45004', name: 'Investigaciones en Plazo', type: 'Proactivo', level: 'Táctico', function: 'Mejora', unit: '%', calc: 'percentage', target: 100, desc: 'Accidentes investigados dentro de las 48-72 hrs.', help: { what: 'Investigaciones terminadas dentro del plazo legal o interno.', why: 'La evidencia y los recuerdos se pierden si pasa mucho tiempo.', labelNum: 'Investigaciones a tiempo', labelDen: 'Total a investigar', example: 'De 2 incidentes, ambos se investigaron en menos de 48 hrs.' } }
+            { id: 'ISO-14', source: 'ISO 45004', name: 'Investigaciones en Plazo', type: 'Proactivo', level: 'Táctico', function: 'Mejora', unit: '%', calc: 'percentage', target: 100, desc: 'Accidentes investigados dentro de las 48-72 hrs.', help: { what: 'Investigaciones terminadas dentro del plazo legal o interno.', why: 'La evidencia y los recuerdos se pierden si pasa mucho tiempo.', labelNum: 'Investigaciones a tiempo', labelDen: 'Total a investigar', example: 'De 2 incidentes, ambos se investigaron en menos de 48 hrs.' } },
+            
+            // NUEVOS INDICADORES AVANZADOS
+            { id: 'ISO-15', source: 'ISO 45004', name: 'Índice de Incidencia', type: 'Reactivo', level: 'Estratégico', function: 'Resultados', unit: 'II', calc: 'incidence', target: 10, desc: 'Trabajadores accidentados por cada 1,000 expuestos.', help: { what: 'Mide la proporción de personas lesionadas físicamente.', why: 'Fácil de entender: "2 de cada 1000 se accidentaron".', labelNum: 'N° Accidentados', labelDen: 'Total Trabajadores', example: '2 accidentados en una plantilla de 500 = Indice de 4.0' } },
+            { id: 'ISO-16', source: 'ISO 45004', name: 'Costos de Siniestralidad', type: 'Reactivo', level: 'Estratégico', function: 'Gestión', unit: '$', calc: 'currency', target: 1000, desc: 'Impacto económico de los accidentes y daños.', help: { what: 'Dinero real gastado por indemnizaciones, daños o paralización.', why: 'La alta gerencia entiende mejor cuando se habla de dinero.', labelNum: 'Monto Gastado ($)', labelDen: '-', example: '$1500 gastados en reparaciones y multas.' } },
+            { id: 'ISO-17', source: 'ISO 45004', name: 'Variación de Accidentabilidad', type: 'Reactivo', level: 'Estratégico', function: 'Resultados', unit: '%', calc: 'variation', target: 0, desc: 'Tendencia de crecimiento o reducción de accidentes.', help: { what: 'Mide porcentualmente si aumentaron o bajaron los casos vs el periodo anterior.', why: 'Indica si estamos mejorando. Valores negativos son buenos.', labelNum: 'Accidentes Mes Actual', labelDen: 'Accidentes Mes Anterior', example: 'Tuvimos 8 (actual) vs 10 (anterior) = Variación de -20%' } },
+            { id: 'ISO-18', source: 'ISO 45004', name: 'Cobertura de Prevencionistas', type: 'Proactivo', level: 'Táctico', function: 'Gestión', unit: 'Trab/Prev', calc: 'ratio', target: 50, desc: 'N° de trabajadores asignados por cada especialista SST.', help: { what: 'Indica si el equipo de seguridad está saturado.', why: 'Muchos trabajadores por prevencionista disminuye el control.', labelNum: 'N° de Prevencionistas', labelDen: 'Total Trabajadores', example: '2 Prevencionistas para 100 Trab = Ratio de 50 (1:50)' } }
         ];
 
         // --- ICONOS TECNOLÓGICOS ---
@@ -131,7 +142,8 @@
             Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>,
             Camera: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
             ExternalLink: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
-            Filter: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+            BookOpen: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         };
 
         const Card = ({ children, className = "", id }) => <div id={id} className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid ${className}`}>{children}</div>;
@@ -148,7 +160,7 @@
             return <span className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[text] || styles['Operativo']}`}>{text}</span>;
         };
 
-        // --- MOTOR GRÁFICO TOTALMENTE REDISEÑADO (Cero solapamiento, responsivo, tooltips inteligentes) ---
+        // --- MOTOR GRÁFICO TOTALMENTE REDISEÑADO (Soporta valores negativos y 0 absoluto) ---
         const TrendChart = ({ data, target, type }) => {
             const height = 120; 
             const width = 320; 
@@ -160,12 +172,18 @@
             const hasData = displayData.length > 0;
             const values = hasData ? displayData.map(d => parseFloat(d.val)) : [];
             
-            const maxVal = Math.max(...(hasData ? values : [0]), target || 0) * 1.2 || 5; 
+            // Lógica robusta para mínimos (permite negativos) y máximos
+            const targetVal = target !== undefined && target !== null && target !== '' ? parseFloat(target) : 0;
+            const minRaw = Math.min(...(hasData ? values : [0]), targetVal, 0);
+            const minVal = minRaw < 0 ? minRaw * 1.2 : 0; // Margen hacia abajo si hay negativos
+            const maxVal = Math.max(...(hasData ? values : [0]), targetVal) * 1.2 || 5; 
+            const range = maxVal - minVal;
             
-            const calcY = (val) => height - paddingYBottom - ((val / maxVal) * (height - paddingYTop - paddingYBottom));
+            const calcY = (val) => height - paddingYBottom - (((val - minVal) / (range || 1)) * (height - paddingYTop - paddingYBottom));
             const calcX = (i) => values.length === 1 ? width / 2 : paddingX + (i * ((width - paddingX * 2) / (values.length - 1)));
 
             const targetY = target !== undefined && target !== null && target !== '' ? calcY(target) : null;
+            const zeroY = calcY(0); // Línea del Eje X (puede estar más arriba si hay negativos)
             const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; 
             
             let points = "";
@@ -176,8 +194,10 @@
             return (
                 <div className="relative w-full h-32 bg-slate-50/50 rounded-xl overflow-hidden border border-slate-100 mt-2">
                     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-                        <line x1={paddingX} y1={height - paddingYBottom} x2={width - paddingX} y2={height - paddingYBottom} stroke="#cbd5e1" strokeWidth="1" />
+                        {/* Línea base del Eje X (0 absoluto) */}
+                        <line x1={paddingX} y1={zeroY} x2={width - paddingX} y2={zeroY} stroke="#cbd5e1" strokeWidth="1" />
                         
+                        {/* Línea punteada de Meta integrada */}
                         {targetY !== null && (
                             <>
                                 <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>
@@ -187,7 +207,8 @@
                         
                         {hasData ? (
                             <>
-                                <polygon points={`${values.length === 1 ? width/2 : paddingX},${height - paddingYBottom} ${points} ${values.length === 1 ? width/2 : width-paddingX},${height - paddingYBottom}`} fill={lineColor} fillOpacity="0.1" />
+                                {/* Sombreado dibuja desde el zeroY hacia el punto */}
+                                <polygon points={`${values.length === 1 ? width/2 : paddingX},${zeroY} ${points} ${values.length === 1 ? width/2 : width-paddingX},${zeroY}`} fill={lineColor} fillOpacity="0.1" />
                                 <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                 
                                 {displayData.map((d, i) => {
@@ -201,6 +222,7 @@
 
                                     return (
                                         <g key={i} className="group">
+                                            {/* Etiqueta del Mes siempre abajo del gráfico, no atada al zeroY */}
                                             <text x={x} y={height - 8} fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}{yearLabel}</text>
                                             <circle cx={x} cy={y} r="3.5" fill="white" stroke={lineColor} strokeWidth="2" className="transition-all cursor-pointer hover:stroke-4" />
                                             
@@ -245,7 +267,6 @@
             const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
             const [editingRecord, setEditingRecord] = useState(null); 
-            // NUEVO: Estado para editar un indicador personalizado desde el catálogo
             const [editingIndId, setEditingIndId] = useState(null);
 
             const [customLibrary, setCustomLibrary] = useState(() => safeJSONParse('iso45004_custom_v9', []));
@@ -265,17 +286,24 @@
 
             const showToast = (msg) => setToastMsg(msg);
 
-            // --- FUNCIÓN MATEMÁTICA CON TOPE DEL 100% PARA PORCENTAJES ---
+            // --- 8 MÉTODOS DE CÁLCULO COMPLETOS ---
             const calculateValue = (method, num, den) => {
+                const n = parseFloat(num) || 0;
+                const d = parseFloat(den) || 0;
+
                 if (method === 'percentage') {
-                    if (den <= 0) return 0;
-                    const val = (num / den) * 100;
-                    // Limitamos matemáticamente al 100%
+                    if (d <= 0) return 0;
+                    const val = (n / d) * 100;
                     return val > 100 ? "100.0" : val.toFixed(1);
                 }
-                if (method === 'rate') return den > 0 ? ((num / den) * kFactor).toFixed(2) : 0;
-                if (method === 'average') return den > 0 ? (num / den).toFixed(1) : num;
-                return num;
+                if (method === 'rate') return d > 0 ? ((n / d) * kFactor).toFixed(2) : 0;
+                if (method === 'incidence') return d > 0 ? ((n / d) * 1000).toFixed(2) : 0;
+                if (method === 'average') return d > 0 ? (n / d).toFixed(1) : n;
+                if (method === 'currency') return n.toFixed(2);
+                if (method === 'variation') return d > 0 ? (((n - d) / d) * 100).toFixed(1) : (n > 0 ? "100.0" : "0.0");
+                if (method === 'ratio') return n > 0 ? (d / n).toFixed(1) : 0;
+                if (method === 'count') return n;
+                return n;
             };
 
             const toggleIndicator = (id) => setActiveIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -306,7 +334,7 @@
                 const ind = fullLibrary.find(i => i.id === indId);
                 if(!ind) return;
 
-                const newVal = calculateValue(ind.calc, parseFloat(record.num), parseFloat(record.den));
+                const newVal = calculateValue(ind.calc, record.num, record.den);
                 
                 const currentRecs = records[indId] || [];
                 const updatedRecs = currentRecs.map(r => {
@@ -427,7 +455,7 @@
                             if (id && year && month && num !== undefined) {
                                 const ind = fullLibrary.find(i => i.id === id);
                                 if (ind) {
-                                    const val = calculateValue(ind.calc, parseFloat(num), parseFloat(den));
+                                    const val = calculateValue(ind.calc, num, den);
                                     const current = newRecords[id] || [];
                                     const periodId = `${year}-${month}`;
                                     
@@ -467,42 +495,66 @@
             };
 
             const loadDemoData = () => {
-                openConfirm("Cargar Demo", "¿Reemplazar tus datos actuales con datos de demostración? Esto mostrará un ejemplo completo con alertas y gráficos.", () => {
-                    const demoIds = ['VZ-1.1', 'VZ-4.1', 'ISO-07', 'ISO-08'];
+                openConfirm("Cargar Demo Completo", "¿Reemplazar tus datos con la demostración de los 8 tipos de indicadores y fórmulas avanzadas?", () => {
+                    const demoIds = ['VZ-1.1', 'VZ-4.1', 'ISO-07', 'ISO-08', 'ISO-15', 'ISO-16', 'ISO-17', 'ISO-18'];
                     setActiveIds(demoIds);
                     const currYear = new Date().getFullYear();
                     
                     const mockRecords = {
-                        'VZ-1.1': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial. Se agendó para febrero.', actionStatus: 'Cerrado' },
+                        'VZ-1.1': [ // %
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial.', actionStatus: 'Cerrado' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 100, actionPlan: '', actionStatus: null } // Limitado a 100 en la demo también
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 100, actionPlan: '', actionStatus: null }
                         ],
-                        'VZ-4.1': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro. Se implementará uso de App móvil obligatoria.', actionStatus: 'Cerrado' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva, reforzar uso de App.', actionStatus: 'Abierto' },
+                        'VZ-4.1': [ // %
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro.', actionStatus: 'Cerrado' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva.', actionStatus: 'Abierto' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 19, den: 20, val: 95, actionPlan: '', actionStatus: null },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 20, den: 20, val: 100, actionPlan: '', actionStatus: null }
                         ],
-                        'ISO-07': [ 
+                        'ISO-07': [ // %
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 10, den: 10, val: 100, actionPlan: '', actionStatus: null },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en entrega de EPP.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en EPP.', actionStatus: 'Abierto' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 15, den: 15, val: 100, actionPlan: '', actionStatus: null },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 8, den: 8, val: 100, actionPlan: '', actionStatus: null }
                         ],
-                        'ISO-08': [ 
+                        'ISO-08': [ // Factor K
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null },
                             { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta y reentrenamiento.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta.', actionStatus: 'Abierto' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null }
+                        ],
+                        'ISO-15': [ // Incidencia
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 2, den: 500, val: 4.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 6, den: 500, val: 12.0, actionPlan: 'Brote de accidentes en almacén.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 500, val: 2.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 500, val: 0, actionPlan: '', actionStatus: null }
+                        ],
+                        'ISO-16': [ // Costos / Moneda
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 500, den: 0, val: 500.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 1500, den: 0, val: 1500.0, actionPlan: 'Gastos superaron meta por indemnización.', actionStatus: 'Cerrado' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 200, den: 0, val: 200.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 0, val: 0, actionPlan: '', actionStatus: null }
+                        ],
+                        'ISO-17': [ // Variación Porcentual
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 10, den: 12, val: -16.7, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 15, den: 10, val: 50.0, actionPlan: 'Aumento del 50% vs mes anterior.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 8, den: 15, val: -46.7, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 8, val: -37.5, actionPlan: '', actionStatus: null }
+                        ],
+                        'ISO-18': [ // Ratio
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 2, den: 120, val: 60.0, actionPlan: 'Faltan especialistas. Relación 1 a 60.', actionStatus: 'Cerrado' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 3, den: 120, val: 40.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 3, den: 120, val: 40.0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 4, den: 125, val: 31.3, actionPlan: '', actionStatus: null }
                         ]
                     };
 
                     setRecords(mockRecords);
                     setKFactor(1000000); 
                     setView('dashboard'); 
-                    showToast("✅ Base de datos Demo cargada con éxito");
+                    showToast("✅ Base de datos Demo Avanzada cargada");
                 });
             };
 
@@ -536,7 +588,7 @@
                                     <input type="number" step="0.01" required className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 font-mono" 
                                         value={record.num} onChange={e => setEditingRecord({...editingRecord, record: {...record, num: e.target.value}})} />
                                 </div>
-                                {ind.calc !== 'count' && (
+                                {ind.calc !== 'count' && ind.calc !== 'currency' && (
                                     <div>
                                         <label className="text-xs font-bold text-slate-400 block mb-1">B. {help.labelDen}</label>
                                         <input type="number" step="0.01" required className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 font-mono" 
@@ -647,7 +699,7 @@
                 
                 useEffect(() => { setNum(''); setDen(''); setActionPlan(''); }, [selectedId]);
 
-                const simulated = calculateValue(currentInd?.calc, parseFloat(num)||0, parseFloat(den)||0);
+                const simulated = calculateValue(currentInd?.calc, num, den);
                 const isTargetMet = currentInd.type === 'Reactivo' ? Number(simulated) <= Number(currentInd.target) : Number(simulated) >= Number(currentInd.target);
                 const requiresAction = num !== '' && !isTargetMet;
 
@@ -691,12 +743,13 @@
                                             <label className="text-sm font-bold text-slate-700 block mb-1 flex justify-between"><span>A. {help.labelNum}</span></label>
                                             <input type="number" step="0.01" required className="input-field text-lg font-mono bg-white shadow-sm" value={num} onChange={e=>setNum(e.target.value)} placeholder="0" />
                                         </div>
-                                        {currentInd.calc !== 'count' && <div>
+                                        
+                                        {/* Solo mostrar denominador B si la fórmula lo requiere */}
+                                        {currentInd.calc !== 'count' && currentInd.calc !== 'currency' && <div>
                                             <label className="text-sm font-bold text-slate-700 block mb-1 flex justify-between"><span>B. {help.labelDen}</span></label>
                                             <input type="number" step="0.01" required className="input-field text-lg font-mono bg-white shadow-sm" value={den} onChange={e=>setDen(e.target.value)} placeholder="0" />
                                         </div>}
                                         
-                                        {/* ALERTA VISUAL DE TOPE DE PORCENTAJE */}
                                         {currentInd.calc === 'percentage' && parseFloat(num) > parseFloat(den) && parseFloat(den) > 0 && (
                                             <div className="text-xs text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 flex items-start gap-2">
                                                 <div className="shrink-0"><Icons.CheckCircle /></div>
@@ -840,7 +893,6 @@
                                                     )}
                                                 </div>
 
-                                                {/* Motor Gráfico completamente rediseñado sin solapamientos HTML */}
                                                 <TrendChart data={data} target={ind.target} type={ind.type} />
                                             </div>
                                             
@@ -942,7 +994,6 @@
                     });
                 };
 
-                // NUEVO: Función para abrir la edición del indicador
                 const editCustomIndicator = (e, ind) => {
                     e.stopPropagation();
                     setEditingIndId(ind.id);
@@ -977,7 +1028,6 @@
                                         </div>
                                         <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 flex justify-between font-mono"><span>{ind.function}</span><span>{ind.source}</span></div>
                                         
-                                        {/* NUEVO: Botones de Edición y Eliminación para Personalizados */}
                                         {ind.source === 'Personalizado' && (
                                             <div className="absolute bottom-3 right-4 flex gap-1">
                                                 <button onClick={(e)=>editCustomIndicator(e, ind)} className="p-1.5 text-slate-300 hover:text-cyan-500 transition-colors" title="Editar Indicador"><Icons.Edit/></button>
@@ -993,10 +1043,9 @@
             };
 
             const CreatorView = () => {
-                // Verificamos si estamos editando uno existente
                 const editingInd = editingIndId ? customLibrary.find(i => i.id === editingIndId) : null;
+                const [showHelp, setShowHelp] = useState(false); 
 
-                // Inicializamos el formulario con los datos existentes o vacío
                 const [form, setForm] = useState({ 
                     name: editingInd ? editingInd.name : '', 
                     type: editingInd ? editingInd.type : 'Proactivo', 
@@ -1013,7 +1062,6 @@
                     help_example: editingInd ? editingInd.help?.example : '' 
                 });
 
-                // Limpiamos el estado de edición si salimos de esta vista sin guardar
                 useEffect(() => {
                     return () => setEditingIndId(null);
                 }, []);
@@ -1027,11 +1075,9 @@
                     };
                     
                     if (editingInd) {
-                        // Actualizar existente
                         setCustomLibrary(customLibrary.map(i => i.id === editingInd.id ? newInd : i));
                         showToast("Indicador personalizado actualizado");
                     } else {
-                        // Crear nuevo
                         setCustomLibrary([...customLibrary, newInd]);
                         setActiveIds([...activeIds, newInd.id]);
                         showToast("Indicador personalizado creado y activado");
@@ -1047,6 +1093,99 @@
                             <button onClick={() => { setEditingIndId(null); setView('library'); }} className="text-slate-500 hover:text-cyan-600 font-bold transition-colors">← Volver al Catálogo</button>
                             <h2 className="text-2xl font-bold font-outfit text-slate-900">{editingInd ? 'Editar Indicador Personalizado' : 'Crear Nuevo Indicador'}</h2>
                         </div>
+
+                        {/* --- GUÍA METODOLÓGICA AMPLIADA (8 MÉTODOS) --- */}
+                        <div className="mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setShowHelp(!showHelp)}
+                                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-3 rounded-xl font-bold text-sm transition-colors border border-slate-300 w-full justify-center md:w-auto md:justify-start shadow-sm"
+                            >
+                                <Icons.BookOpen /> {showHelp ? 'Ocultar Guía Metodológica' : '📖 Abrir Guía Metodológica (Fórmulas y Conceptos)'}
+                            </button>
+
+                            {showHelp && (
+                                <div className="mt-4 bg-slate-900 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-xl animate-fade-in text-left">
+                                    <h3 className="text-xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
+                                        <Icons.Lightbulb /> Guía de Creación de Indicadores SST
+                                    </h3>
+                                    
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Columna 1: Tipos */}
+                                        <div className="space-y-4">
+                                            <h4 className="font-bold text-white border-b border-slate-700 pb-2">1. Tipo de Indicador</h4>
+                                            <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                                                <p className="text-emerald-400 font-bold text-sm mb-1">Proactivo (Preventivo)</p>
+                                                <p className="text-slate-300 text-xs">Mide las acciones hechas <strong>ANTES</strong> de que ocurra el daño. (Ej: Capacitaciones, Inspecciones). <br/><em className="text-emerald-400/80">Su meta suele ser alta (ej. 90% - 100%).</em></p>
+                                            </div>
+                                            <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                                                <p className="text-rose-400 font-bold text-sm mb-1">Reactivo (Consecuencia)</p>
+                                                <p className="text-slate-300 text-xs">Mide el daño <strong>DESPUÉS</strong> de que ocurrió. (Ej: Accidentes, Días Perdidos, Costos). <br/><em className="text-rose-400/80">Su meta suele ser muy baja (ej. 0 o &lt; 2.5).</em></p>
+                                            </div>
+                                        </div>
+
+                                        {/* Columna 2: Fórmulas (Ampliada a 8) */}
+                                        <div className="space-y-4">
+                                            <h4 className="font-bold text-white border-b border-slate-700 pb-2">2. Métodos de Cálculo</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Porcentaje (%)</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">(A / B) × 100</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Cumplimiento de metas (Topado a 100%).</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Tasa (Factor K)</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">(A / B) × K</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Accidentes x Millón de horas (LTIFR).</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Incidencia</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">(A / B) × 1000</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Casos por cada 1,000 trabajadores.</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Moneda / Costo</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">Valor de A</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Dinero gastado o presupuesto (B se ignora).</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Variación (%)</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">((A - B) / B) × 100</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Tendencia vs Mes anterior.</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Ratio (1:X)</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">B / A</code>
+                                                    <p className="italic text-[9px] text-slate-400 mt-1">Ej: 1 Prevencionista por cada X Trab.</p>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Conteo (#)</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">Valor de A</code>
+                                                </div>
+                                                <div className="bg-slate-800/50 p-3 rounded-xl text-xs text-slate-300 border border-slate-700">
+                                                    <span className="text-cyan-300 font-bold block mb-1">Promedio</span>
+                                                    <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-100">A / B</code>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Columna 3: Inputs */}
+                                        <div className="space-y-4">
+                                            <h4 className="font-bold text-white border-b border-slate-700 pb-2">3. Anatomía del Dato</h4>
+                                            <div className="bg-cyan-900/20 border border-cyan-800/50 p-4 rounded-xl">
+                                                <p className="text-cyan-300 font-bold text-sm mb-1">A. Numerador (Dato Principal)</p>
+                                                <p className="text-slate-300 text-xs mb-4">El valor real medido, o el dato del "Mes Actual" si es una variación.<br/><span className="text-cyan-100/70 italic">Ej: Capacitaciones dictadas, N° de accidentes, Gastos ($).</span></p>
+                                                
+                                                <p className="text-cyan-300 font-bold text-sm mb-1">B. Denominador (Base/Universo)</p>
+                                                <p className="text-slate-300 text-xs mb-4">El total posible, expuestos, o el dato del "Mes Anterior" si es variación.<br/><span className="text-cyan-100/70 italic">Ej: Total de trabajadores, Horas Hombre (HHT).</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        {/* --- FIN GUÍA METODOLÓGICA --- */}
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                             <Card className="p-6 md:p-8 border-t-4 border-t-slate-800">
                                 <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b border-slate-100 pb-2">1. Configuración Técnica</h3>
@@ -1054,9 +1193,22 @@
                                     <div><label className="text-xs font-bold text-slate-600 block mb-1">Nombre</label><input required className="input-field font-bold" value={form.name} onChange={e=>setForm({...form, name: e.target.value})} placeholder="Ej. Tasa de Cierre de Hallazgos" /></div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div><label className="text-xs font-bold text-slate-600 block mb-1">Tipo</label><select className="input-field" value={form.type} onChange={e=>setForm({...form, type: e.target.value})}><option>Proactivo</option><option>Reactivo</option></select></div>
-                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Cálculo</label><select className="input-field" value={form.calc} onChange={e=>setForm({...form, calc: e.target.value})}><option value="percentage">%</option><option value="rate">Tasa (Factor K)</option><option value="count">Conteo (#)</option><option value="average">Promedio</option></select></div>
+                                        
+                                        {/* --- NUEVAS OPCIONES DE CÁLCULO EN EL SELECTOR --- */}
+                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Cálculo</label>
+                                            <select className="input-field" value={form.calc} onChange={e=>setForm({...form, calc: e.target.value})}>
+                                                <option value="percentage">Porcentaje (%)</option>
+                                                <option value="rate">Tasa (Factor K)</option>
+                                                <option value="incidence">Incidencia (x 1,000)</option>
+                                                <option value="currency">Moneda / Costo ($)</option>
+                                                <option value="variation">Variación Tendencia (%)</option>
+                                                <option value="ratio">Ratio / Proporción (1:X)</option>
+                                                <option value="count">Conteo Directo (#)</option>
+                                                <option value="average">Promedio Simple</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Meta</label><input type="number" className="input-field" value={form.target} onChange={e=>setForm({...form, target: e.target.value})} /></div>
+                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Meta</label><input type="number" step="0.01" className="input-field" value={form.target} onChange={e=>setForm({...form, target: e.target.value})} /></div>
                                     <div><label className="text-xs font-bold text-slate-600 block mb-1">Descripción</label><textarea className="input-field" rows="2" value={form.desc} onChange={e=>setForm({...form, desc: e.target.value})} placeholder="Breve descripción del indicador..."></textarea></div>
                                 </form>
                             </Card>
