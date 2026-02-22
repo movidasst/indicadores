@@ -22,10 +22,10 @@
                     },
                     colors: {
                         brand: {
-                            dark: '#020617', // slate-950
-                            primary: '#06b6d4', // cyan-500
-                            secondary: '#3b82f6', // blue-500
-                            accent: '#8b5cf6' // violet-500
+                            dark: '#020617', 
+                            primary: '#06b6d4', 
+                            secondary: '#3b82f6', 
+                            accent: '#8b5cf6' 
                         }
                     }
                 }
@@ -38,10 +38,8 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- html2canvas para exportar PNG -->
+    <!-- html2canvas & SheetJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <!-- SheetJS para exportar e importar Excel nativo (.xlsx) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -124,6 +122,7 @@
             Lightbulb: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.086 0l.607 1.274a3 3 0 0 1-2.693 4.19H10.535a3 3 0 0 1-2.693-4.19l.607-1.274z"/></svg>,
             Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>,
             Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
+            Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
             Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
             Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
             Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
@@ -132,7 +131,8 @@
             Play: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
             Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>,
             Camera: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
-            ExternalLink: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            ExternalLink: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+            Filter: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         };
 
         const Card = ({ children, className = "", id }) => <div id={id} className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid ${className}`}>{children}</div>;
@@ -149,27 +149,26 @@
             return <span className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[text] || styles['Operativo']}`}>{text}</span>;
         };
 
-        // --- MOTOR GRÁFICO MEJORADO (Con meses en el eje X y Tooltips) ---
+        // --- MOTOR GRÁFICO MEJORADO V9 (Ventana deslizante de 12 meses) ---
         const TrendChart = ({ data, target, type }) => {
-            const height = 100; // Altura ampliada para dar espacio a las etiquetas de los meses
+            const height = 100; 
             const width = 280; 
             const paddingX = 15; 
             const paddingYTop = 15; 
-            const paddingYBottom = 20; // Margen inferior para escribir los meses
+            const paddingYBottom = 20; 
             
-            // Verificamos si hay datos
-            const hasData = data && data.length > 0;
-            const values = hasData ? data.map(d => parseFloat(d.val)) : [];
+            // Limitamos a los últimos 12 registros para evitar superposición en pantallas largas
+            const displayData = data && data.length > 0 ? data.slice(-12) : [];
+            const hasData = displayData.length > 0;
+            const values = hasData ? displayData.map(d => parseFloat(d.val)) : [];
             
-            // Calculamos el valor máximo para la escala (dinámico)
             const maxVal = Math.max(...(hasData ? values : [0]), target || 0) * 1.15 || 5; 
             
-            // Funciones de escala para X e Y
             const calcY = (val) => height - paddingYBottom - ((val / maxVal) * (height - paddingYTop - paddingYBottom));
             const calcX = (i) => paddingX + (i * ((width - paddingX * 2) / (values.length - 1 || 1)));
 
             const targetY = target ? calcY(target) : null;
-            const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; // Rojo o Cyan
+            const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; 
             
             let points = "";
             if (hasData) {
@@ -179,33 +178,23 @@
             return (
                 <div className="relative w-full h-28 bg-slate-50/50 rounded-lg overflow-visible border border-slate-100 mt-2">
                     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-                        {/* Línea base del Eje X */}
                         <line x1={paddingX} y1={height - paddingYBottom} x2={width - paddingX} y2={height - paddingYBottom} stroke="#cbd5e1" strokeWidth="1" />
-                        
-                        {/* Línea punteada de Meta */}
                         {targetY && <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>}
                         
                         {hasData ? (
                             <>
-                                {/* Sombreado bajo la línea */}
                                 <polygon points={`${paddingX},${height - paddingYBottom} ${points} ${width-paddingX},${height - paddingYBottom}`} fill={lineColor} fillOpacity="0.1" />
-                                {/* Línea principal de tendencia */}
                                 <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                 
-                                {/* Puntos de datos, Tooltips y Nombres de Meses */}
-                                {data.map((d, i) => {
+                                {displayData.map((d, i) => {
                                     const val = parseFloat(d.val);
                                     const x = calcX(i);
                                     const y = calcY(val);
+                                    const yearLabel = d.year ? ` ${d.year.toString().slice(-2)}` : '';
                                     return (
                                         <g key={i} className="group">
-                                            {/* Etiqueta del Mes en el Eje X */}
-                                            <text x={x} y={height - 6} fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}</text>
-                                            
-                                            {/* Punto visible */}
+                                            <text x={x} y={height - 6} fontSize="8" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}{yearLabel}</text>
                                             <circle cx={x} cy={y} r="3.5" fill="white" stroke={lineColor} strokeWidth="2" className="transition-all cursor-pointer hover:stroke-4" />
-                                            
-                                            {/* Tooltip Flotante con el valor numérico (aparece al pasar el mouse) */}
                                             <rect x={x - 18} y={y - 25} width="36" height="16" rx="4" fill="#0f172a" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg" />
                                             <text x={x} y={y - 14} fontSize="9" fill="#ffffff" textAnchor="middle" fontWeight="bold" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">{val}</text>
                                         </g>
@@ -213,12 +202,11 @@
                                 })}
                             </>
                         ) : (
-                            <text x="50%" y="40%" dominantBaseline="middle" textAnchor="middle" fill="#94a3b8" fontSize="11" fontFamily="sans-serif" fontWeight="bold">
-                                Esperando registros...
-                            </text>
+                            <text x="50%" y="40%" dominantBaseline="middle" textAnchor="middle" fill="#94a3b8" fontSize="11" fontFamily="sans-serif" fontWeight="bold">Esperando registros...</text>
                         )}
                     </svg>
                     {target && <div className="absolute top-1 right-1 text-[9px] text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded font-bold border border-amber-200/50 shadow-sm backdrop-blur-sm pointer-events-none">Meta: {target}</div>}
+                    {data && data.length > 12 && <div className="absolute bottom-1 right-1 text-[8px] text-slate-400 font-mono">Mostrando ult 12m</div>}
                 </div>
             );
         };
@@ -243,25 +231,29 @@
             const [showSettings, setShowSettings] = useState(false);
             const [showImportModal, setShowImportModal] = useState(false);
             
+            // Modal de Alertas/Confirmaciones
             const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isAlert: false });
             const openConfirm = (title, message, onConfirm) => setModalConfig({ isOpen: true, title, message, onConfirm, isAlert: false });
             const openAlert = (title, message) => setModalConfig({ isOpen: true, title, message, onConfirm: null, isAlert: true });
             const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
+            // NUEVO: Estado para el Modal de Edición de Registros
+            const [editingRecord, setEditingRecord] = useState(null); // { indId, record }
+
             // Estado Persistente
-            const [customLibrary, setCustomLibrary] = useState(() => safeJSONParse('iso45004_custom_tech', []));
-            const [activeIds, setActiveIds] = useState(() => safeJSONParse('iso45004_active_ids_tech', []));
-            const [records, setRecords] = useState(() => safeJSONParse('iso45004_records_tech', {}));
-            const [kFactor, setKFactor] = useState(() => safeJSONParse('iso45004_kfactor_tech', 1000000));
+            const [customLibrary, setCustomLibrary] = useState(() => safeJSONParse('iso45004_custom_v9', []));
+            const [activeIds, setActiveIds] = useState(() => safeJSONParse('iso45004_active_ids_v9', []));
+            const [records, setRecords] = useState(() => safeJSONParse('iso45004_records_v9', {}));
+            const [kFactor, setKFactor] = useState(() => safeJSONParse('iso45004_kfactor_v9', 1000000));
 
             const fullLibrary = useMemo(() => [...DEFAULT_LIBRARY, ...customLibrary], [customLibrary]);
             const activeIndicators = useMemo(() => fullLibrary.filter(ind => activeIds.includes(ind.id)), [fullLibrary, activeIds]);
 
             useEffect(() => {
-                localStorage.setItem('iso45004_custom_tech', JSON.stringify(customLibrary));
-                localStorage.setItem('iso45004_active_ids_tech', JSON.stringify(activeIds));
-                localStorage.setItem('iso45004_records_tech', JSON.stringify(records));
-                localStorage.setItem('iso45004_kfactor_tech', JSON.stringify(kFactor));
+                localStorage.setItem('iso45004_custom_v9', JSON.stringify(customLibrary));
+                localStorage.setItem('iso45004_active_ids_v9', JSON.stringify(activeIds));
+                localStorage.setItem('iso45004_records_v9', JSON.stringify(records));
+                localStorage.setItem('iso45004_kfactor_v9', JSON.stringify(kFactor));
             }, [customLibrary, activeIds, records, kFactor]);
 
             const showToast = (msg) => setToastMsg(msg);
@@ -275,10 +267,14 @@
 
             const toggleIndicator = (id) => setActiveIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
             
-            const addRecord = (indId, year, month, num, den, val, actionPlan) => {
+            const addRecord = (indId, year, month, num, den, val, actionPlan, actionStatus = 'Abierto') => {
                 const current = records[indId] || [];
                 const periodId = `${year}-${month}`;
-                const updated = [...current.filter(r => `${r.year}-${r.month}` !== periodId), { id: crypto.randomUUID(), year: parseInt(year), month, num, den, val, actionPlan }];
+                const updated = [...current.filter(r => `${r.year}-${r.month}` !== periodId), { 
+                    id: crypto.randomUUID(), year: parseInt(year), month, num, den, val, 
+                    actionPlan, 
+                    actionStatus: actionPlan ? actionStatus : null 
+                }];
                 
                 const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                 updated.sort((a,b) => {
@@ -287,6 +283,48 @@
                 });
                 
                 setRecords({...records, [indId]: updated});
+            };
+
+            // NUEVA FUNCIÓN: Actualizar un registro existente
+            const handleUpdateRecord = (e) => {
+                e.preventDefault();
+                if (!editingRecord) return;
+                
+                const { indId, record } = editingRecord;
+                const ind = fullLibrary.find(i => i.id === indId);
+                if(!ind) return;
+
+                const newVal = calculateValue(ind.calc, parseFloat(record.num), parseFloat(record.den));
+                
+                const currentRecs = records[indId] || [];
+                const updatedRecs = currentRecs.map(r => {
+                    if (r.id === record.id) {
+                        return {
+                            ...r,
+                            num: parseFloat(record.num),
+                            den: parseFloat(record.den),
+                            val: newVal,
+                            actionPlan: record.actionPlan,
+                            actionStatus: record.actionPlan ? (r.actionStatus || 'Abierto') : null
+                        };
+                    }
+                    return r;
+                });
+                
+                setRecords({...records, [indId]: updatedRecs});
+                setEditingRecord(null); // Cerrar modal
+                showToast("Registro actualizado exitosamente");
+            };
+
+            const toggleActionStatus = (indId, recordId) => {
+                const updated = records[indId].map(r => {
+                    if(r.id === recordId) {
+                        return { ...r, actionStatus: r.actionStatus === 'Abierto' ? 'Cerrado' : 'Abierto' };
+                    }
+                    return r;
+                });
+                setRecords({...records, [indId]: updated});
+                showToast("Estado de Acción Actualizado");
             };
 
             const handleDeleteRecord = (indId, recordId) => {
@@ -306,15 +344,14 @@
                             "ID Indicador": id,
                             "Nombre del KPI": ind.name,
                             "Tipo": ind.type,
-                            "Nivel": ind.level,
-                            "Función": ind.function,
                             "Año": r.year,
                             "Mes": r.month,
                             "Numerador (Dato)": r.num,
                             "Denominador (Base)": r.den,
                             "Resultado Calculado": r.val,
                             "Unidad": ind.unit,
-                            "Plan de Acción / Notas": r.actionPlan || ''
+                            "Plan de Acción / Notas": r.actionPlan || '',
+                            "Estado PHVA": r.actionStatus || 'N/A' 
                         });
                     });
                 });
@@ -331,22 +368,13 @@
                 showToast("Archivo Excel descargado con éxito");
             };
 
-            // --- FUNCIONES DE IMPORTACIÓN ---
             const downloadTemplate = () => {
-                // Hoja 1: Estructura para importar
                 const templateData = [
-                    { "ID Indicador": "VZ-1.1", "Año": 2024, "Mes": "Ene", "Numerador (Dato)": 3, "Denominador (Base)": 4, "Plan de Acción / Notas": "Faltó una visita, reprogramada." }
+                    { "ID Indicador": "VZ-1.1", "Año": 2024, "Mes": "Ene", "Numerador (Dato)": 3, "Denominador (Base)": 4, "Plan de Acción / Notas": "Faltó una visita, reprogramada.", "Estado PHVA (Abierto/Cerrado)": "Abierto" }
                 ];
                 const ws1 = XLSX.utils.json_to_sheet(templateData);
 
-                // Hoja 2: Catálogo completo de referencia
-                const refData = fullLibrary.map(ind => ({
-                    "ID Indicador": ind.id,
-                    "Nombre de Indicador": ind.name,
-                    "Tipo": ind.type,
-                    "Nivel": ind.level,
-                    "Requiere Denominador": ind.calc !== 'count' ? 'Sí' : 'No'
-                }));
+                const refData = fullLibrary.map(ind => ({ "ID Indicador": ind.id, "Nombre de Indicador": ind.name, "Tipo": ind.type, "Nivel": ind.level }));
                 const ws2 = XLSX.utils.json_to_sheet(refData);
 
                 const wb = XLSX.utils.book_new();
@@ -366,7 +394,7 @@
                     try {
                         const data = new Uint8Array(evt.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
-                        const wsname = workbook.SheetNames[0]; // Leer siempre la primera hoja
+                        const wsname = workbook.SheetNames[0]; 
                         const ws = workbook.Sheets[wsname];
                         const rows = XLSX.utils.sheet_to_json(ws);
                         
@@ -381,6 +409,8 @@
                             const num = row["Numerador (Dato)"];
                             const den = row["Denominador (Base)"] || 0;
                             const actionPlan = row["Plan de Acción / Notas"] || "";
+                            const rawStatus = row["Estado PHVA (Abierto/Cerrado)"] || "";
+                            const actionStatus = rawStatus.toLowerCase() === 'cerrado' ? 'Cerrado' : (actionPlan ? 'Abierto' : null);
 
                             if (id && year && month && num !== undefined) {
                                 const ind = fullLibrary.find(i => i.id === id);
@@ -389,11 +419,9 @@
                                     const current = newRecords[id] || [];
                                     const periodId = `${year}-${month}`;
                                     
-                                    // Sobrescribir si ya existe en ese mes/año
                                     const updated = current.filter(r => `${r.year}-${r.month}` !== periodId);
-                                    updated.push({ id: crypto.randomUUID(), year: parseInt(year), month: month, num: parseFloat(num), den: parseFloat(den), val: val, actionPlan: actionPlan });
+                                    updated.push({ id: crypto.randomUUID(), year: parseInt(year), month: month, num: parseFloat(num), den: parseFloat(den), val: val, actionPlan: actionPlan, actionStatus: actionStatus });
                                     
-                                    // Re-ordenar
                                     const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                                     updated.sort((a,b) => {
                                         if (a.year !== b.year) return a.year - b.year;
@@ -401,7 +429,7 @@
                                     });
                                     
                                     newRecords[id] = updated;
-                                    newActiveIdsSet.add(id); // Activar indicador automáticamente
+                                    newActiveIdsSet.add(id); 
                                     importedCount++;
                                 }
                             }
@@ -414,19 +442,18 @@
                         if (importedCount > 0) {
                             showToast(`✅ Se importaron ${importedCount} registros correctamente.`);
                         } else {
-                            openAlert("Sin Datos", "No se encontró ningún registro válido para importar. Verifica las columnas de la plantilla.");
+                            openAlert("Sin Datos", "No se encontró ningún registro válido para importar. Verifica las columnas.");
                         }
 
                     } catch (err) {
                         console.error(err);
-                        openAlert("Error de Lectura", "Hubo un problema procesando el archivo Excel. Asegúrate de usar la plantilla original.");
+                        openAlert("Error de Lectura", "Hubo un problema procesando el archivo Excel.");
                     }
                     e.target.value = null; 
                 };
                 reader.readAsArrayBuffer(file);
             };
 
-            // --- DEMO Y RESET ---
             const loadDemoData = () => {
                 openConfirm("Cargar Demo", "¿Reemplazar tus datos actuales con datos de demostración? Esto mostrará un ejemplo completo con alertas y gráficos.", () => {
                     const demoIds = ['VZ-1.1', 'VZ-4.1', 'ISO-07', 'ISO-08'];
@@ -435,28 +462,28 @@
                     
                     const mockRecords = {
                         'VZ-1.1': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial. Se agendó para febrero.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 4, den: 4, val: 100, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 4, den: 4, val: 100, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 125, actionPlan: '' }
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial. Se agendó para febrero.', actionStatus: 'Cerrado' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 125, actionPlan: '', actionStatus: null }
                         ],
                         'VZ-4.1': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro. Se implementará uso de App móvil obligatoria.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva, reforzar uso de App.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 19, den: 20, val: 95, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 20, den: 20, val: 100, actionPlan: '' }
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro. Se implementará uso de App móvil obligatoria.', actionStatus: 'Cerrado' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva, reforzar uso de App.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 19, den: 20, val: 95, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 20, den: 20, val: 100, actionPlan: '', actionStatus: null }
                         ],
                         'ISO-07': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 10, den: 10, val: 100, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en entrega de EPP.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 15, den: 15, val: 100, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 8, den: 8, val: 100, actionPlan: '' }
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 10, den: 10, val: 100, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en entrega de EPP.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 15, den: 15, val: 100, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 8, den: 8, val: 100, actionPlan: '', actionStatus: null }
                         ],
                         'ISO-08': [ 
-                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 0, den: 200000, val: 0, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 0, den: 200000, val: 0, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta y reentrenamiento.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 200000, val: 0, actionPlan: '' }
+                            { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta y reentrenamiento.', actionStatus: 'Abierto' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 200000, val: 0, actionPlan: '', actionStatus: null }
                         ]
                     };
 
@@ -477,7 +504,50 @@
                 });
             };
 
-            // --- VISTAS SECUNDARIAS ---
+            // --- VISTAS ---
+            
+            // MODAL DE EDICIÓN DE REGISTRO
+            const EditRecordModal = () => {
+                if (!editingRecord) return null;
+                const { indId, record } = editingRecord;
+                const ind = fullLibrary.find(i => i.id === indId);
+                const help = ind?.help || { labelNum: 'Valor (A)', labelDen: 'Total (B)' };
+
+                return (
+                    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-fade-in">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white">
+                            <h2 className="text-xl font-bold mb-1 flex items-center gap-2 text-cyan-400"><Icons.Edit/> Editar Registro</h2>
+                            <p className="text-sm text-slate-400 mb-5">{ind.name} <span className="text-cyan-400 ml-1 font-mono">({record.month} {record.year})</span></p>
+                            
+                            <form onSubmit={handleUpdateRecord} className="space-y-4">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 block mb-1">A. {help.labelNum}</label>
+                                    <input type="number" step="0.01" required className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 font-mono" 
+                                        value={record.num} onChange={e => setEditingRecord({...editingRecord, record: {...record, num: e.target.value}})} />
+                                </div>
+                                {ind.calc !== 'count' && (
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 block mb-1">B. {help.labelDen}</label>
+                                        <input type="number" step="0.01" required className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 font-mono" 
+                                            value={record.den} onChange={e => setEditingRecord({...editingRecord, record: {...record, den: e.target.value}})} />
+                                    </div>
+                                )}
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 block mb-1">Plan de Acción / Notas (Opcional si cumple meta)</label>
+                                    <textarea className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 text-sm" rows="3" 
+                                        value={record.actionPlan || ''} onChange={e => setEditingRecord({...editingRecord, record: {...record, actionPlan: e.target.value}})}></textarea>
+                                </div>
+                                
+                                <div className="mt-6 flex justify-end gap-3 pt-2 border-t border-slate-700">
+                                    <button type="button" onClick={() => setEditingRecord(null)} className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-colors w-full">Cancelar</button>
+                                    <button type="submit" className="px-5 py-2.5 rounded-xl font-bold transition-colors w-full text-white bg-cyan-600 hover:bg-cyan-500 shadow-lg shadow-cyan-600/30">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
             const SettingsModal = () => {
                 if (!showSettings) return null;
                 return (
@@ -508,35 +578,22 @@
                     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
                         <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-cyan-400"><Icons.Upload/> Importación Masiva (Excel)</h2>
-                            
                             <div className="space-y-5">
                                 <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                                     <h3 className="font-bold text-sm mb-2 text-cyan-300 flex items-center gap-2">Paso 1: La Plantilla</h3>
                                     <p className="text-xs text-slate-400 mb-3">Descarga nuestro formato exacto. No cambies los nombres de las columnas. Incluye una pestaña con los "Códigos ID" requeridos.</p>
-                                    
-                                    {/* --- NUEVA ACLARATORIA --- */}
                                     <div className="bg-cyan-900/30 border border-cyan-800/50 p-3 rounded-lg mb-4 text-xs text-cyan-100 flex items-start gap-2">
                                         <div className="text-cyan-400 shrink-0"><Icons.Lightbulb /></div>
                                         <p><strong>¿Indicador Nuevo?</strong> Créalo primero en la app (botón "Crear Propio"). Al descargar la plantilla, su nuevo ID autogenerado aparecerá en la segunda hoja.</p>
                                     </div>
-
-                                    <button onClick={downloadTemplate} className="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2">
-                                        <Icons.Download /> Descargar Formato (.xlsx)
-                                    </button>
+                                    <button onClick={downloadTemplate} className="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"><Icons.Download /> Descargar Formato (.xlsx)</button>
                                 </div>
-
                                 <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                                     <h3 className="font-bold text-sm mb-2 text-cyan-300 flex items-center gap-2">Paso 2: Subir Datos</h3>
                                     <p className="text-xs text-slate-400 mb-3">Una vez llena tu plantilla, cárgala aquí. El sistema calculará y acomodará los meses automáticamente.</p>
-                                    <input 
-                                        type="file" 
-                                        accept=".xlsx, .xls, .csv" 
-                                        onChange={handleFileUpload} 
-                                        className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-cyan-600 file:text-white hover:file:bg-cyan-500 cursor-pointer"
-                                    />
+                                    <input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-cyan-600 file:text-white hover:file:bg-cyan-500 cursor-pointer"/>
                                 </div>
                             </div>
-
                             <div className="mt-6 flex justify-end">
                                 <button onClick={() => setShowImportModal(false)} className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-lg font-bold transition-colors">Cancelar</button>
                             </div>
@@ -566,6 +623,7 @@
                 const [den, setDen] = useState('');
                 const [actionPlan, setActionPlan] = useState('');
 
+                const yearOptions = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
                 const currentInd = activeIndicators.find(i => i.id === selectedId) || activeIndicators[0];
                 const help = currentInd?.help || { labelNum: 'Valor', labelDen: 'Total', what: 'Sin ayuda', why: '-', example: '-' };
                 
@@ -582,7 +640,7 @@
                         openAlert("Acción Requerida", "La meta no se cumplió. Es obligatorio ingresar un Plan de Acción (PHVA).");
                         return;
                     }
-                    addRecord(currentInd.id, year, month, num, den, simulated, actionPlan);
+                    addRecord(currentInd.id, year, month, num, den, simulated, actionPlan, 'Abierto');
                     showToast("Registro manual guardado exitosamente");
                     setNum(''); setDen(''); setActionPlan('');
                 };
@@ -601,7 +659,7 @@
                                         <div>
                                             <label className="text-xs font-bold text-slate-500 uppercase">Año</label>
                                             <select className="input-field bg-slate-50 mt-1" value={year} onChange={e=>setYear(Number(e.target.value))}>
-                                                {[currentYear-2, currentYear-1, currentYear, currentYear+1].map(y=><option key={y} value={y}>{y}</option>)}
+                                                {yearOptions.map(y=><option key={y} value={y}>{y}</option>)}
                                             </select>
                                         </div>
                                         <div>
@@ -632,7 +690,7 @@
                                         <label className={`text-sm font-bold flex items-center gap-2 mb-2 ${requiresAction ? 'text-rose-800' : 'text-slate-700'}`}>
                                             {requiresAction ? <><Icons.AlertCircle /> Plan de Acción Obligatorio (PHVA)</> : <><Icons.Lightbulb /> Notas / Comentarios (Opcional)</>}
                                         </label>
-                                        {requiresAction && <p className="text-xs text-rose-600 mb-3">La meta no se cumplió. La norma exige documentar una acción correctiva.</p>}
+                                        {requiresAction && <p className="text-xs text-rose-600 mb-3">La meta no se cumplió. La norma exige documentar una acción correctiva. Esta nacerá en estado <strong className="uppercase">"Abierto"</strong>.</p>}
                                         <textarea required={requiresAction} placeholder={requiresAction ? "Describa el plan de acción responsable y fecha..." : "Añade un comentario, justificación o contexto a este resultado..."} className={`input-field text-sm bg-white ${requiresAction ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-300 focus:border-cyan-500'}`} rows="3" value={actionPlan} onChange={e=>setActionPlan(e.target.value)}></textarea>
                                     </div>
 
@@ -656,6 +714,8 @@
             };
 
             const DashboardView = () => {
+                const [dashFilter, setDashFilter] = useState('ALL'); 
+
                 if (activeIndicators.length === 0) return (
                     <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mx-4">
                         <div className="bg-cyan-50 text-cyan-500 p-5 rounded-full mb-4"><Icons.Dashboard /></div>
@@ -684,72 +744,94 @@
                     }
                 };
 
+                const filteredDashIndicators = activeIndicators.filter(ind => {
+                    if (dashFilter === 'ALL') return true;
+                    if (dashFilter === 'PRO') return ind.type === 'Proactivo';
+                    if (dashFilter === 'REA') return ind.type === 'Reactivo';
+                    if (dashFilter === 'ALERT') {
+                        const recs = records[ind.id] || [];
+                        return recs.some(r => r.actionStatus === 'Abierto');
+                    }
+                    return true;
+                });
+
                 return (
                     <div className="animate-fade-in space-y-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-xl shadow-sm border border-slate-200 no-print gap-4">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-5 rounded-xl shadow-sm border border-slate-200 no-print gap-4">
                             <div>
                                 <h2 className="font-bold text-xl text-slate-900">Panel de Resultados Tecnológicos</h2>
                                 <p className="text-sm text-slate-500 font-mono">Monitoreo en tiempo real de KPIs</p>
                             </div>
-                            <div className="flex gap-2 w-full sm:w-auto">
+                            
+                            <div className="flex bg-slate-100 p-1 rounded-lg w-full lg:w-auto overflow-x-auto">
+                                <button onClick={() => setDashFilter('ALL')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'ALL' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>Todos</button>
+                                <button onClick={() => setDashFilter('PRO')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'PRO' ? 'bg-cyan-100 text-cyan-700' : 'text-slate-500'}`}>Proactivos</button>
+                                <button onClick={() => setDashFilter('REA')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'REA' ? 'bg-rose-100 text-rose-700' : 'text-slate-500'}`}>Reactivos</button>
+                                <button onClick={() => setDashFilter('ALERT')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors flex items-center gap-1 ${dashFilter === 'ALERT' ? 'bg-amber-100 text-amber-700' : 'text-slate-500'}`}><Icons.AlertCircle/> Alertas PHVA</button>
+                            </div>
+
+                            <div className="flex gap-2 w-full lg:w-auto">
                                 <button onClick={() => setShowImportModal(true)} className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm shadow-sm transition-colors border border-slate-300 w-full sm:w-auto"><Icons.Upload/> Importar</button>
-                                <button onClick={exportExcel} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors w-full sm:w-auto"><Icons.Download/> Exportar a Excel</button>
+                                <button onClick={exportExcel} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors w-full sm:w-auto"><Icons.Download/> a Excel</button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {activeIndicators.map(ind => {
-                                const data = records[ind.id] || [];
-                                const lastRec = data.length ? data[data.length-1] : null;
-                                const lastVal = lastRec ? lastRec.val : '-';
-                                let isGood = null;
-                                if (lastRec) { isGood = ind.type === 'Reactivo' ? Number(lastVal) <= Number(ind.target) : Number(lastVal) >= Number(ind.target); }
+                        {filteredDashIndicators.length === 0 ? (
+                            <div className="text-center py-10 text-slate-400">No hay indicadores que coincidan con este filtro.</div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {filteredDashIndicators.map(ind => {
+                                    const data = records[ind.id] || [];
+                                    const lastRec = data.length ? data[data.length-1] : null;
+                                    const lastVal = lastRec ? lastRec.val : '-';
+                                    let isGood = null;
+                                    if (lastRec) { isGood = ind.type === 'Reactivo' ? Number(lastVal) <= Number(ind.target) : Number(lastVal) >= Number(ind.target); }
+                                    
+                                    const openActions = data.filter(r => r.actionStatus === 'Abierto');
 
-                                return (
-                                    <Card key={ind.id} id={`card-${ind.id}`} className="p-6 hover:shadow-lg transition-shadow flex flex-col justify-between border-t-4 border-t-slate-800 relative group">
-                                        <button data-html2canvas-ignore="true" onClick={() => downloadCardAsPNG(ind.id, ind.name)} title="Descargar como PNG" className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-cyan-100 text-slate-400 hover:text-cyan-600 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Icons.Camera /></button>
+                                    return (
+                                        <Card key={ind.id} id={`card-${ind.id}`} className={`p-6 hover:shadow-lg transition-shadow flex flex-col justify-between border-t-4 ${openActions.length > 0 ? 'border-t-rose-500' : 'border-t-slate-800'} relative group`}>
+                                            <button data-html2canvas-ignore="true" onClick={() => downloadCardAsPNG(ind.id, ind.name)} title="Descargar como PNG" className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-cyan-100 text-slate-400 hover:text-cyan-600 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Icons.Camera /></button>
 
-                                        <div>
-                                            <div className="flex justify-between items-start mb-4 pr-10">
-                                                <div><Badge text={ind.type} type={ind.type}/><h3 className="font-bold text-slate-900 text-lg mt-2 leading-tight">{ind.name}</h3></div>
-                                                <div className="text-right">
-                                                    <div className={`text-3xl font-extrabold font-mono flex items-center justify-end gap-1 tracking-tighter ${isGood === true ? 'text-emerald-500' : isGood === false ? 'text-rose-500' : 'text-slate-800'}`}>
-                                                        {lastVal}
-                                                        <span className="text-sm text-slate-400 font-sans tracking-normal">{ind.unit}</span>
-                                                    </div>
-                                                    {isGood !== null && (
-                                                        <div className="flex items-center justify-end gap-1 mt-1">
-                                                            {isGood ? <span className="text-emerald-500 flex items-center text-xs font-bold gap-1"><Icons.CheckCircle/> En Meta</span> : <span className="text-rose-500 flex items-center text-xs font-bold gap-1"><Icons.AlertCircle/> Alerta</span>}
+                                            <div>
+                                                <div className="flex justify-between items-start mb-4 pr-10">
+                                                    <div><Badge text={ind.type} type={ind.type}/><h3 className="font-bold text-slate-900 text-lg mt-2 leading-tight">{ind.name}</h3></div>
+                                                    <div className="text-right">
+                                                        <div className={`text-3xl font-extrabold font-mono flex items-center justify-end gap-1 tracking-tighter ${isGood === true ? 'text-emerald-500' : isGood === false ? 'text-rose-500' : 'text-slate-800'}`}>
+                                                            {lastVal}
+                                                            <span className="text-sm text-slate-400 font-sans tracking-normal">{ind.unit}</span>
                                                         </div>
-                                                    )}
+                                                        {isGood !== null && (
+                                                            <div className="flex items-center justify-end gap-1 mt-1">
+                                                                {isGood ? <span className="text-emerald-500 flex items-center text-xs font-bold gap-1"><Icons.CheckCircle/> En Meta</span> : <span className="text-rose-500 flex items-center text-xs font-bold gap-1"><Icons.AlertCircle/> Alerta</span>}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
+                                                <TrendChart data={data} target={ind.target} type={ind.type} />
                                             </div>
                                             
-                                            {/* Gráfica siempre renderizada */}
-                                            <TrendChart data={data} target={ind.target} type={ind.type} />
-                                            
-                                        </div>
-                                        
-                                        <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-3">
-                                            <div className="flex justify-between font-mono bg-slate-100 px-3 py-1.5 rounded-lg">
-                                                <span className="font-bold text-slate-700">Meta obj: {ind.target}</span>
-                                                <span>Data: {data.length} pts</span>
-                                            </div>
-                                            {lastRec && lastRec.actionPlan && (
-                                                <div className="bg-rose-50 text-rose-800 p-3 rounded-lg border border-rose-200">
-                                                    <span className="font-bold text-rose-900 flex items-center gap-1 mb-1"><Icons.AlertCircle/> Acción requerida ({lastRec.month}):</span> 
-                                                    <span className="italic">{lastRec.actionPlan}</span>
+                                            <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-3">
+                                                <div className="flex justify-between font-mono bg-slate-100 px-3 py-1.5 rounded-lg">
+                                                    <span className="font-bold text-slate-700">Meta obj: {ind.target}</span>
+                                                    <span>Data: {data.length} pts</span>
                                                 </div>
-                                            )}
-                                        </div>
-                                    </Card>
-                                )
-                            })}
-                        </div>
+                                                {openActions.length > 0 && (
+                                                    <div className="bg-rose-50 text-rose-800 p-3 rounded-lg border border-rose-200">
+                                                        <span className="font-bold text-rose-900 flex items-center gap-1 mb-1"><Icons.AlertCircle/> {openActions.length} PHVA Pendiente(s):</span> 
+                                                        <span className="italic">{openActions[openActions.length-1].actionPlan}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </Card>
+                                    )
+                                })}
+                            </div>
+                        )}
                         
                         <Card className="mt-8 no-print border-slate-200 shadow-sm">
                             <div className="p-5 border-b border-slate-100 font-bold text-slate-900 flex items-center gap-2">
-                                <Icons.Data /> Historial Detallado de Registros (Log)
+                                <Icons.Data /> Historial de Registro y Cierre de PHVA
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm">
@@ -759,13 +841,18 @@
                                             <th className="p-4 border-b border-slate-200">Periodo</th>
                                             <th className="p-4 border-b border-slate-200 text-right">Resultado</th>
                                             <th className="p-4 border-b border-slate-200">Plan de Acción / Notas</th>
-                                            <th className="p-4 border-b border-slate-200 text-right">Admin</th>
+                                            <th className="p-4 border-b border-slate-200 text-center">Estado Acción</th>
+                                            <th className="p-4 border-b border-slate-200 text-right">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {Object.entries(records).flatMap(([id, recs]) => recs.map(r => ({...r, indId: id})))
-                                            .sort((a,b) => b.year - a.year || b.month.localeCompare(a.month))
-                                            .slice(0, 15)
+                                            .sort((a,b) => {
+                                                if (b.year !== a.year) return b.year - a.year;
+                                                const monthList = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                                                return monthList.indexOf(b.month) - monthList.indexOf(a.month);
+                                            })
+                                            .slice(0, 25)
                                             .map((rec) => {
                                                 const ind = fullLibrary.find(i => i.id === rec.indId) || {};
                                                 return (
@@ -774,15 +861,31 @@
                                                         <td className="p-4 text-slate-500 font-mono bg-slate-50 w-24 text-center">{rec.month} {rec.year}</td>
                                                         <td className="p-4 text-right font-mono font-bold text-cyan-600">{rec.val} <span className="text-slate-400 text-xs">{ind.unit}</span></td>
                                                         <td className="p-4 text-slate-600 italic text-xs max-w-xs truncate" title={rec.actionPlan}>{rec.actionPlan || <span className="text-slate-300">N/A</span>}</td>
-                                                        <td className="p-4 text-right">
-                                                            <button onClick={() => handleDeleteRecord(rec.indId, rec.id)} className="text-slate-300 hover:text-rose-500 transition-colors"><Icons.Trash/></button>
+                                                        
+                                                        <td className="p-4 text-center">
+                                                            {rec.actionStatus ? (
+                                                                <button 
+                                                                    onClick={() => toggleActionStatus(rec.indId, rec.id)}
+                                                                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-colors border ${rec.actionStatus === 'Abierto' ? 'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200' : 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200'}`}
+                                                                >
+                                                                    {rec.actionStatus === 'Abierto' ? '🔴 Abierto' : '✅ Cerrado'}
+                                                                </button>
+                                                            ) : (
+                                                                <span className="text-slate-300">-</span>
+                                                            )}
+                                                        </td>
+                                                        
+                                                        <td className="p-4 text-right flex items-center justify-end gap-2">
+                                                            {/* NUEVO BOTON EDITAR */}
+                                                            <button onClick={() => setEditingRecord({indId: rec.indId, record: {...rec}})} className="text-slate-400 hover:text-cyan-500 transition-colors" title="Editar"><Icons.Edit/></button>
+                                                            <button onClick={() => handleDeleteRecord(rec.indId, rec.id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Eliminar"><Icons.Trash/></button>
                                                         </td>
                                                     </tr>
                                                 );
                                             })}
                                         {Object.keys(records).length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="p-8 text-center text-slate-400 italic">No hay registros en el historial todavía.</td>
+                                                <td colSpan="6" className="p-8 text-center text-slate-400 italic">No hay registros en el historial todavía.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -914,14 +1017,7 @@
                                     <button onClick={loadDemoData} title="Cargar Demo" className="p-2 md:px-3 md:py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-indigo-100"><Icons.Play/> <span className="hidden md:inline">Demo</span></button>
                                     <button onClick={resetData} title="Borrar Todo" className="p-2 md:px-3 md:py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-rose-100"><Icons.Refresh/> <span className="hidden md:inline">Limpiar</span></button>
                                     <button onClick={() => setShowSettings(true)} title="Configuración" className="p-2.5 bg-slate-900 text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shadow-lg hover:shadow-cyan-900/20 ml-1 md:ml-2"><Icons.Settings/></button>
-                                    
-                                    {/* NUEVO BOTÓN UNETE A LA ACADEMIA */}
-                                    <a 
-                                        href="https://movidasst.org/login/index.php" 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="ml-2 hidden md:flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-cyan-500/30 transition-all hover:scale-105 border border-cyan-400/30"
-                                    >
+                                    <a href="https://movidasst.org/login/index.php" target="_blank" rel="noopener noreferrer" className="ml-2 hidden md:flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-cyan-500/30 transition-all hover:scale-105 border border-cyan-400/30">
                                         Únete a la Academia <Icons.ExternalLink />
                                     </a>
                                 </div>
@@ -942,8 +1038,10 @@
 
                     {/* Modales y Alertas UI */}
                     <ImportModal />
+                    <EditRecordModal />
+                    
                     {modalConfig.isOpen && (
-                        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in">
+                        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[80] flex items-center justify-center p-4 animate-fade-in">
                             <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-sm text-center transform scale-100 transition-all">
                                 <div className="flex justify-center mb-4">
                                     {modalConfig.isAlert ? <div className="p-3 bg-rose-500/20 text-rose-400 rounded-full"><Icons.AlertCircle /></div> : <div className="p-3 bg-cyan-500/20 text-cyan-400 rounded-full"><Icons.Lightbulb /></div>}
