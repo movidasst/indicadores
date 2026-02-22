@@ -37,9 +37,15 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- html2canvas para exportar PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- SheetJS para exportar e importar Excel nativo (.xlsx) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        body { background-color: #f8fafc; -webkit-print-color-adjust: exact; } /* slate-50 background for clean contrast */
+        body { background-color: #f8fafc; -webkit-print-color-adjust: exact; }
         .input-field { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; transition: all 0.2s; outline: none; font-family: 'Outfit', sans-serif; background-color: #ffffff; color: #0f172a; }
         .input-field:focus { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -76,7 +82,7 @@
 
         // --- BASE DE DATOS MAESTRA ---
         const DEFAULT_LIBRARY = [
-            // --- VISION ZERO (14 Indicadores Proactivos) ---
+            // VISION ZERO
             { id: 'VZ-1.1', source: 'Vision Zero', name: 'Compromiso Visible del Liderazgo', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 80, desc: 'Mide qué tan activos son los jefes en terreno.', help: { what: 'Muestra si los gerentes realmente bajan a planta.', why: 'El ejemplo arrastra y muestra compromiso real.', labelNum: 'Visitas realizadas', labelDen: 'Visitas programadas', example: 'El gerente hizo 2 de 4 visitas mensuales.' } },
             { id: 'VZ-1.2', source: 'Vision Zero', name: 'Liderazgo Competente', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 100, desc: 'Nuevos directivos con criterios SST.', help: { what: '% de jefes contratados evaluando sus competencias en seguridad.', why: 'Evita ingresar líderes que no valoran la prevención.', labelNum: 'Líderes evaluados en SST', labelDen: 'Total líderes contratados', example: 'Se contrataron 3 gerentes, a los 3 se les evaluó en SST.' } },
             { id: 'VZ-2.1', source: 'Vision Zero', name: 'Eficacia en Control de Riesgos', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: 'Verifica si los controles realmente funcionan.', help: { what: '% de medidas de control inspeccionadas que son efectivas.', why: 'Tener el control en papel no basta, debe funcionar en terreno.', labelNum: 'Controles efectivos', labelDen: 'Controles evaluados', example: 'De 10 guardas de seguridad revisadas, 9 funcionaban bien.' } },
@@ -92,7 +98,7 @@
             { id: 'VZ-7.1', source: 'Vision Zero', name: 'Sugerencias de Mejora', type: 'Proactivo', level: 'Operativo', function: 'Participación', unit: '#', calc: 'count', target: 10, desc: 'Ideas de seguridad aportadas por la base.', help: { what: 'Cantidad de ideas o sugerencias de mejora recibidas.', why: 'Los trabajadores son quienes mejor conocen los riesgos.', labelNum: 'N° de Sugerencias', labelDen: '-', example: 'Los operadores depositaron 12 ideas en el buzón.' } },
             { id: 'VZ-7.2', source: 'Vision Zero', name: 'Reconocimiento Positivo', type: 'Proactivo', level: 'Táctico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 50, desc: 'Refuerzo de comportamientos seguros.', help: { what: 'Proporción de inspecciones enfocadas en felicitar vs sancionar.', why: 'El refuerzo positivo construye mejor cultura que el castigo.', labelNum: 'Reconocimientos entregados', labelDen: 'Total inspecciones', example: 'En 10 rondas, felicitamos a 6 equipos por buen trabajo.' } },
             
-            // --- ISO 45004 (Indicadores Clave y Específicos) ---
+            // ISO 45004
             { id: 'ISO-01', source: 'ISO 45004', name: 'Cumplimiento Legal', type: 'Proactivo', level: 'Estratégico', function: 'Legal', unit: '%', calc: 'percentage', target: 100, desc: 'Grado de apego a la ley local aplicable.', help: { what: 'Nuevas leyes o requisitos cumplidos vs los identificados.', why: 'Evita multas, paralizaciones y asegura lo mínimo exigible.', labelNum: 'Requisitos cumplidos', labelDen: 'Requisitos aplicables', example: 'Cumplimos 8 de 10 normas legales auditadas.' } },
             { id: 'ISO-02', source: 'ISO 45004', name: 'Participación en Comités', type: 'Proactivo', level: 'Táctico', function: 'Participación', unit: '%', calc: 'percentage', target: 100, desc: 'Asistencia y eficacia del Comité Paritario (COPASST/CSH).', help: { what: '% de asistencia a reuniones del comité de seguridad.', why: 'Garantiza la consulta y participación de los trabajadores.', labelNum: 'Miembros asistentes', labelDen: 'Total miembros', example: 'Asistieron 5 de 6 miembros a la reunión mensual.' } },
             { id: 'ISO-03', source: 'ISO 45004', name: 'Reporte de Casi Accidentes', type: 'Proactivo', level: 'Operativo', function: 'Seguridad', unit: '#', calc: 'count', target: 50, desc: 'Volumen de reportes preventivos (Near miss).', help: { what: 'Cantidad de reportes de peligro o actos inseguros recibidos.', why: 'Muchos reportes sin daño previenen el accidente grave.', labelNum: 'N° Reportes (Tarjetas)', labelDen: '-', example: 'Recibimos 45 tarjetas de observación este mes.' } },
@@ -105,7 +111,7 @@
             { id: 'ISO-10', source: 'ISO 45004', name: 'Eficacia de Simulacros', type: 'Proactivo', level: 'Operativo', function: 'Emergencias', unit: '%', calc: 'percentage', target: 90, desc: 'Ejecución y cumplimiento de objetivos en simulacros.', help: { what: 'Simulacros realizados cumpliendo el tiempo y estándar esperado.', why: 'Asegura estar listos ante un incendio, sismo u otra crisis.', labelNum: 'Simulacros exitosos', labelDen: 'Simulacros realizados', example: '2 de 2 simulacros evacuaron en menos de 3 minutos.' } },
             { id: 'ISO-11', source: 'ISO 45004', name: 'Ejecución de Auditorías', type: 'Proactivo', level: 'Táctico', function: 'Evaluación', unit: '%', calc: 'percentage', target: 100, desc: 'Avance del programa anual de auditorías.', help: { what: 'Auditorías internas y externas realizadas vs planificadas.', why: 'Garantiza la revisión periódica del sistema de gestión.', labelNum: 'Auditorías ejecutadas', labelDen: 'Auditorías programadas', example: 'Hicimos 1 de 1 auditoría programada este trimestre.' } },
             { id: 'ISO-12', source: 'ISO 45004', name: 'Clima / Cultura de Seguridad', type: 'Proactivo', level: 'Estratégico', function: 'Cultura', unit: 'Pts', calc: 'average', target: 85, desc: 'Puntuación de encuestas de percepción de seguridad.', help: { what: 'Promedio de calificación de los trabajadores sobre la seguridad.', why: 'La percepción subjetiva es un gran predictor de desempeño.', labelNum: 'Suma total de puntajes', labelDen: 'N° Encuestas tabuladas', example: '4250 puntos sumados entre 50 trabajadores encuestados.' } },
-            { id: 'ISO-13', source: 'ISO 45004', name: 'Índice Enfermedad Profesional (ODR)', type: 'Reactivo', level: 'Estratégico', function: 'Salud', unit: 'IEP', calc: 'rate', target: 0, desc: 'Tasa de enfermedades laborales diagnosticadas.', help: { what: 'Nuevas enfermedades ocupacionales por constante K.', why: 'Mide el impacto a largo plazo de las condiciones de trabajo.', labelNum: 'N° Casos de Enfermedad', labelDen: 'Total Horas Trabajadas', example: '0 casos diagnosticados este mes.' } },
+            { id: 'ISO-13', source: 'ISO 45004', name: 'Índice Enfermedad Profesional', type: 'Reactivo', level: 'Estratégico', function: 'Salud', unit: 'IEP', calc: 'rate', target: 0, desc: 'Tasa de enfermedades laborales diagnosticadas.', help: { what: 'Nuevas enfermedades ocupacionales por constante K.', why: 'Mide el impacto a largo plazo de las condiciones de trabajo.', labelNum: 'N° Casos de Enfermedad', labelDen: 'Total Horas Trabajadas', example: '0 casos diagnosticados este mes.' } },
             { id: 'ISO-14', source: 'ISO 45004', name: 'Investigaciones en Plazo', type: 'Proactivo', level: 'Táctico', function: 'Mejora', unit: '%', calc: 'percentage', target: 100, desc: 'Accidentes investigados dentro de las 48-72 hrs.', help: { what: 'Investigaciones terminadas dentro del plazo legal o interno.', why: 'La evidencia y los recuerdos se pierden si pasa mucho tiempo.', labelNum: 'Investigaciones a tiempo', labelDen: 'Total a investigar', example: 'De 2 incidentes, ambos se investigaron en menos de 48 hrs.' } }
         ];
 
@@ -120,13 +126,16 @@
             Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
             Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
             Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
             AlertCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
             CheckCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
             Play: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
-            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>,
+            Camera: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+            ExternalLink: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         };
 
-        const Card = ({ children, className = "" }) => <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid ${className}`}>{children}</div>;
+        const Card = ({ children, className = "", id }) => <div id={id} className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid ${className}`}>{children}</div>;
         
         const Badge = ({ text, type }) => {
             const styles = {
@@ -140,28 +149,51 @@
             return <span className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[text] || styles['Operativo']}`}>{text}</span>;
         };
 
+        // --- MOTOR GRÁFICO MEJORADO (Se dibuja siempre, incluso sin datos) ---
         const TrendChart = ({ data, target, type }) => {
-            if (!data || data.length === 0) return <div className="h-24 flex items-center justify-center text-slate-400 text-xs bg-slate-50 rounded-lg">Sin datos</div>;
             const height = 80; const width = 280; const padding = 5;
-            const values = data.map(d => parseFloat(d.val));
-            const maxVal = Math.max(...values, target || 0) * 1.15 || 5; 
-            const points = values.map((val, i) => `${padding + (i * ((width - padding * 2) / (values.length - 1 || 1)))},${height - padding - ((val / maxVal) * (height - padding * 2))}`).join(' ');
+            
+            // Si hay datos, extraemos los valores. Si no, array vacío.
+            const values = data && data.length > 0 ? data.map(d => parseFloat(d.val)) : [];
+            const hasData = values.length > 0;
+            
+            // maxVal determina la altura de la gráfica. Si no hay datos, se basa en la meta o usa 5 por defecto.
+            const maxVal = Math.max(...(hasData ? values : [0]), target || 0) * 1.15 || 5; 
             const targetY = target ? height - padding - ((target / maxVal) * (height - padding * 2)) : null;
             const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; // Rose or Cyan
             
+            let points = "";
+            if (hasData) {
+                points = values.map((val, i) => `${padding + (i * ((width - padding * 2) / (values.length - 1 || 1)))},${height - padding - ((val / maxVal) * (height - padding * 2))}`).join(' ');
+            }
+            
             return (
-                <div className="relative w-full h-24">
+                <div className="relative w-full h-24 bg-slate-50/50 rounded-lg overflow-hidden border border-slate-100">
                     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-                        {targetY && <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1" strokeDasharray="3,3" />}
-                        <polygon points={`${padding},${height} ${points} ${width-padding},${height}`} fill={lineColor} fillOpacity="0.1" />
-                        <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        {values.map((val, i) => {
-                            const x = padding + (i * ((width - padding * 2) / (values.length - 1 || 1)));
-                            const y = height - padding - ((val / maxVal) * (height - padding * 2));
-                            return <circle key={i} cx={x} cy={y} r="3" fill="white" stroke={lineColor} strokeWidth="2" />;
-                        })}
+                        {/* Línea base siempre visible */}
+                        <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#cbd5e1" strokeWidth="1" />
+                        
+                        {/* Línea de meta siempre visible */}
+                        {targetY && <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>}
+                        
+                        {hasData ? (
+                            <>
+                                <polygon points={`${padding},${height} ${points} ${width-padding},${height}`} fill={lineColor} fillOpacity="0.1" />
+                                <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                {values.map((val, i) => {
+                                    const x = padding + (i * ((width - padding * 2) / (values.length - 1 || 1)));
+                                    const y = height - padding - ((val / maxVal) * (height - padding * 2));
+                                    return <circle key={i} cx={x} cy={y} r="3" fill="white" stroke={lineColor} strokeWidth="2" />;
+                                })}
+                            </>
+                        ) : (
+                            // Texto para cuando está vacío
+                            <text x="50%" y="60%" dominantBaseline="middle" textAnchor="middle" fill="#94a3b8" fontSize="11" fontFamily="sans-serif" fontWeight="bold">
+                                Esperando registros...
+                            </text>
+                        )}
                     </svg>
-                    {target && <div className="absolute top-0 right-0 text-[9px] text-amber-600 bg-white/80 px-1 rounded border border-amber-100">Meta: {target}</div>}
+                    {target && <div className="absolute top-1 right-1 text-[9px] text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded font-bold border border-amber-200/50 shadow-sm backdrop-blur-sm">Meta: {target}</div>}
                 </div>
             );
         };
@@ -184,14 +216,14 @@
             const [view, setView] = useState('library');
             const [toastMsg, setToastMsg] = useState('');
             const [showSettings, setShowSettings] = useState(false);
+            const [showImportModal, setShowImportModal] = useState(false);
             
-            // --- NUEVO: Estado del Modal Personalizado ---
             const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isAlert: false });
             const openConfirm = (title, message, onConfirm) => setModalConfig({ isOpen: true, title, message, onConfirm, isAlert: false });
             const openAlert = (title, message) => setModalConfig({ isOpen: true, title, message, onConfirm: null, isAlert: true });
             const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
-            // Estado Persistente Mejorado con Fallbacks Seguros
+            // Estado Persistente
             const [customLibrary, setCustomLibrary] = useState(() => safeJSONParse('iso45004_custom_tech', []));
             const [activeIds, setActiveIds] = useState(() => safeJSONParse('iso45004_active_ids_tech', []));
             const [records, setRecords] = useState(() => safeJSONParse('iso45004_records_tech', {}));
@@ -221,7 +253,7 @@
             const addRecord = (indId, year, month, num, den, val, actionPlan) => {
                 const current = records[indId] || [];
                 const periodId = `${year}-${month}`;
-                const updated = [...current.filter(r => `${r.year}-${r.month}` !== periodId), { id: crypto.randomUUID(), year, month, num, den, val, actionPlan }];
+                const updated = [...current.filter(r => `${r.year}-${r.month}` !== periodId), { id: crypto.randomUUID(), year: parseInt(year), month, num, den, val, actionPlan }];
                 
                 const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                 updated.sort((a,b) => {
@@ -230,7 +262,6 @@
                 });
                 
                 setRecords({...records, [indId]: updated});
-                showToast("Registro guardado exitosamente");
             };
 
             const handleDeleteRecord = (indId, recordId) => {
@@ -241,83 +272,187 @@
                 });
             };
 
-            const exportCSV = () => {
-                let csv = "ID_Indicador,Nombre,Tipo,Nivel,Funcion,Anio,Mes,Numerador,Denominador,Valor_Calculado,Unidad,Plan_de_Accion\n";
+            const exportExcel = () => {
+                const exportData = [];
                 Object.entries(records).forEach(([id, recs]) => {
                     const ind = fullLibrary.find(i => i.id === id) || { name: 'Desconocido', unit: '' };
                     recs.forEach(r => {
-                        const row = [id, `"${ind.name}"`, ind.type, ind.level, ind.function, r.year, r.month, r.num, r.den, r.val, ind.unit, `"${r.actionPlan || ''}"`];
-                        csv += row.join(',') + "\n";
+                        exportData.push({
+                            "ID Indicador": id,
+                            "Nombre del KPI": ind.name,
+                            "Tipo": ind.type,
+                            "Nivel": ind.level,
+                            "Función": ind.function,
+                            "Año": r.year,
+                            "Mes": r.month,
+                            "Numerador (Dato)": r.num,
+                            "Denominador (Base)": r.den,
+                            "Resultado Calculado": r.val,
+                            "Unidad": ind.unit,
+                            "Plan de Acción / Notas": r.actionPlan || ''
+                        });
                     });
                 });
+
+                if (exportData.length === 0) {
+                    openAlert("Sin Datos", "No hay registros en el historial para exportar.");
+                    return;
+                }
                 
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", `ISO45004_Data_${new Date().toISOString().split('T')[0]}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showToast("Archivo CSV exportado");
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Historial_SST");
+                XLSX.writeFile(workbook, `ISO45004_Dashboard_${new Date().toISOString().split('T')[0]}.xlsx`);
+                showToast("Archivo Excel descargado con éxito");
             };
 
-            // --- FUNCIONES DEMO Y RESET ---
+            // --- FUNCIONES DE IMPORTACIÓN ---
+            const downloadTemplate = () => {
+                // Hoja 1: Estructura para importar
+                const templateData = [
+                    { "ID Indicador": "VZ-1.1", "Año": 2024, "Mes": "Ene", "Numerador (Dato)": 3, "Denominador (Base)": 4, "Plan de Acción / Notas": "Faltó una visita, reprogramada." }
+                ];
+                const ws1 = XLSX.utils.json_to_sheet(templateData);
+
+                // Hoja 2: Catálogo completo de referencia
+                const refData = fullLibrary.map(ind => ({
+                    "ID Indicador": ind.id,
+                    "Nombre de Indicador": ind.name,
+                    "Tipo": ind.type,
+                    "Nivel": ind.level,
+                    "Requiere Denominador": ind.calc !== 'count' ? 'Sí' : 'No'
+                }));
+                const ws2 = XLSX.utils.json_to_sheet(refData);
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws1, "Importar_Datos");
+                XLSX.utils.book_append_sheet(wb, ws2, "Catálogo_Codigos_ID");
+
+                XLSX.writeFile(wb, "Plantilla_Importacion_SST.xlsx");
+                showToast("Plantilla descargada");
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const wsname = workbook.SheetNames[0]; // Leer siempre la primera hoja
+                        const ws = workbook.Sheets[wsname];
+                        const rows = XLSX.utils.sheet_to_json(ws);
+                        
+                        let newRecords = { ...records };
+                        let importedCount = 0;
+                        let newActiveIdsSet = new Set(activeIds);
+
+                        rows.forEach(row => {
+                            const id = row["ID Indicador"];
+                            const year = row["Año"];
+                            const month = row["Mes"];
+                            const num = row["Numerador (Dato)"];
+                            const den = row["Denominador (Base)"] || 0;
+                            const actionPlan = row["Plan de Acción / Notas"] || "";
+
+                            if (id && year && month && num !== undefined) {
+                                const ind = fullLibrary.find(i => i.id === id);
+                                if (ind) {
+                                    const val = calculateValue(ind.calc, parseFloat(num), parseFloat(den));
+                                    const current = newRecords[id] || [];
+                                    const periodId = `${year}-${month}`;
+                                    
+                                    // Sobrescribir si ya existe en ese mes/año
+                                    const updated = current.filter(r => `${r.year}-${r.month}` !== periodId);
+                                    updated.push({ id: crypto.randomUUID(), year: parseInt(year), month: month, num: parseFloat(num), den: parseFloat(den), val: val, actionPlan: actionPlan });
+                                    
+                                    // Re-ordenar
+                                    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                                    updated.sort((a,b) => {
+                                        if (a.year !== b.year) return a.year - b.year;
+                                        return months.indexOf(a.month) - months.indexOf(b.month);
+                                    });
+                                    
+                                    newRecords[id] = updated;
+                                    newActiveIdsSet.add(id); // Activar indicador automáticamente
+                                    importedCount++;
+                                }
+                            }
+                        });
+
+                        setRecords(newRecords);
+                        setActiveIds(Array.from(newActiveIdsSet));
+                        setShowImportModal(false);
+                        
+                        if (importedCount > 0) {
+                            showToast(`✅ Se importaron ${importedCount} registros correctamente.`);
+                        } else {
+                            openAlert("Sin Datos", "No se encontró ningún registro válido para importar. Verifica las columnas de la plantilla.");
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        openAlert("Error de Lectura", "Hubo un problema procesando el archivo Excel. Asegúrate de usar la plantilla original.");
+                    }
+                    e.target.value = null; 
+                };
+                reader.readAsArrayBuffer(file);
+            };
+
+            // --- DEMO Y RESET ---
             const loadDemoData = () => {
                 openConfirm("Cargar Demo", "¿Reemplazar tus datos actuales con datos de demostración? Esto mostrará un ejemplo completo con alertas y gráficos.", () => {
-                    // 1. Seleccionar indicadores clave
                     const demoIds = ['VZ-1.1', 'VZ-4.1', 'ISO-07', 'ISO-08'];
                     setActiveIds(demoIds);
-                    
                     const currYear = new Date().getFullYear();
                     
-                    // 2. Generar historial de 4 meses con situaciones variadas (éxito y fallo)
                     const mockRecords = {
-                        'VZ-1.1': [ // Meta 80% (Proactivo: Sube progresivamente)
+                        'VZ-1.1': [ 
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial. Se agendó para febrero.' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 4, den: 4, val: 100, actionPlan: '' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 4, den: 4, val: 100, actionPlan: '' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 125, actionPlan: '' }
                         ],
-                        'VZ-4.1': [ // Meta 95% (Proactivo: Falla y luego mejora)
+                        'VZ-4.1': [ 
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro. Se implementará uso de App móvil obligatoria.' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva, reforzar uso de App en contratistas.' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 18, den: 20, val: 90, actionPlan: 'Mejora progresiva, reforzar uso de App.' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 19, den: 20, val: 95, actionPlan: '' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 20, den: 20, val: 100, actionPlan: '' }
                         ],
-                        'ISO-07': [ // Meta 90% (Cierre Acciones - Proactivo)
+                        'ISO-07': [ 
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 10, den: 10, val: 100, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en entrega de EPP. Multas aplicadas y re-agendado.' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 12, den: 15, val: 80, actionPlan: 'Retraso de proveedores en entrega de EPP.' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 15, den: 15, val: 100, actionPlan: '' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 8, den: 8, val: 100, actionPlan: '' }
                         ],
-                        'ISO-08': [ // Meta 2.5 (LTIFR - Reactivo: Accidente en Marzo)
+                        'ISO-08': [ 
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 0, den: 200000, val: 0, actionPlan: '' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 0, den: 200000, val: 0, actionPlan: '' },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta, reentrenamiento total y cambio de guardas físicas (Cierre 15/Abr).' },
+                            { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 1, den: 200000, val: 5.0, actionPlan: 'Accidente corte mano. Parada de planta y reentrenamiento.' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 0, den: 200000, val: 0, actionPlan: '' }
                         ]
                     };
 
                     setRecords(mockRecords);
-                    setKFactor(1000000); // Reset a estándar ISO
-                    setView('dashboard'); // Redirigir al dashboard para ver los resultados
+                    setKFactor(1000000); 
+                    setView('dashboard'); 
                     showToast("✅ Base de datos Demo cargada con éxito");
                 });
             };
 
             const resetData = () => {
-                openConfirm("Borrar Todo", "⚠️ PELIGRO: ¿Estás seguro de borrar TODOS los datos (Catálogo, Personalizados y Registros)? Esta acción no se puede deshacer.", () => {
+                openConfirm("Borrar Todo", "⚠️ PELIGRO: ¿Estás seguro de borrar TODOS los datos? Esta acción no se puede deshacer.", () => {
                     setActiveIds([]);
                     setRecords({});
                     setCustomLibrary([]);
                     setView('library');
-                    showToast("🗑️ Sistema reiniciado y limpiado correctamente");
+                    showToast("🗑️ Sistema reiniciado correctamente");
                 });
             };
 
-            // --- VISTAS ---
-
+            // --- VISTAS SECUNDARIAS ---
             const SettingsModal = () => {
                 if (!showSettings) return null;
                 return (
@@ -342,12 +477,59 @@
                 );
             };
 
+            const ImportModal = () => {
+                if (!showImportModal) return null;
+                return (
+                    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white">
+                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-cyan-400"><Icons.Upload/> Importación Masiva (Excel)</h2>
+                            
+                            <div className="space-y-5">
+                                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                                    <h3 className="font-bold text-sm mb-2 text-cyan-300 flex items-center gap-2">Paso 1: La Plantilla</h3>
+                                    <p className="text-xs text-slate-400 mb-3">Descarga nuestro formato exacto. No cambies los nombres de las columnas. Incluye una pestaña con los "Códigos ID" requeridos.</p>
+                                    
+                                    {/* --- NUEVA ACLARATORIA --- */}
+                                    <div className="bg-cyan-900/30 border border-cyan-800/50 p-3 rounded-lg mb-4 text-xs text-cyan-100 flex items-start gap-2">
+                                        <div className="text-cyan-400 shrink-0"><Icons.Lightbulb /></div>
+                                        <p><strong>¿Indicador Nuevo?</strong> Créalo primero en la app (botón "Crear Propio"). Al descargar la plantilla, su nuevo ID autogenerado aparecerá en la segunda hoja.</p>
+                                    </div>
+
+                                    <button onClick={downloadTemplate} className="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                                        <Icons.Download /> Descargar Formato (.xlsx)
+                                    </button>
+                                </div>
+
+                                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                                    <h3 className="font-bold text-sm mb-2 text-cyan-300 flex items-center gap-2">Paso 2: Subir Datos</h3>
+                                    <p className="text-xs text-slate-400 mb-3">Una vez llena tu plantilla, cárgala aquí. El sistema calculará y acomodará los meses automáticamente.</p>
+                                    <input 
+                                        type="file" 
+                                        accept=".xlsx, .xls, .csv" 
+                                        onChange={handleFileUpload} 
+                                        className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-cyan-600 file:text-white hover:file:bg-cyan-500 cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
+                                <button onClick={() => setShowImportModal(false)} className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-lg font-bold transition-colors">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
             const InputView = () => {
                 if (activeIndicators.length === 0) return (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">¡Aún no has configurado tus KPIs!</h3>
-                        <p className="text-slate-500 mb-6">Selecciona indicadores primero en el catálogo.</p>
-                        <button onClick={() => setView('library')} className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all">Ir al Catálogo</button>
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mx-4">
+                        <div className="bg-cyan-50 text-cyan-500 p-5 rounded-full mb-4"><Icons.Library /></div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Aún no hay indicadores activos</h3>
+                        <p className="text-slate-500 mb-6 text-center max-w-md">Para ingresar datos, primero debes seleccionar los KPIs que deseas medir desde el catálogo o importar tu archivo Excel directamente.</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button onClick={() => setView('library')} className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2">Ir al Catálogo</button>
+                            <button onClick={() => setShowImportModal(true)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold shadow-sm border border-slate-300 transition-all flex items-center justify-center gap-2"><Icons.Upload /> Importar Excel</button>
+                        </div>
                     </div>
                 );
 
@@ -365,7 +547,6 @@
                 useEffect(() => { setNum(''); setDen(''); setActionPlan(''); }, [selectedId]);
 
                 const simulated = calculateValue(currentInd?.calc, parseFloat(num)||0, parseFloat(den)||0);
-                
                 const isTargetMet = currentInd.type === 'Reactivo' ? Number(simulated) <= Number(currentInd.target) : Number(simulated) >= Number(currentInd.target);
                 const requiresAction = num !== '' && !isTargetMet;
 
@@ -377,6 +558,7 @@
                         return;
                     }
                     addRecord(currentInd.id, year, month, num, den, simulated, actionPlan);
+                    showToast("Registro manual guardado exitosamente");
                     setNum(''); setDen(''); setActionPlan('');
                 };
 
@@ -421,16 +603,15 @@
                                         </div>
                                     </div>
 
-                                    {/* Cierre PHVA */}
-                                    {requiresAction && (
-                                        <div className="bg-rose-50 p-5 rounded-2xl border border-rose-200 animate-slide-up">
-                                            <label className="text-sm font-bold text-rose-800 flex items-center gap-2 mb-2"><Icons.AlertCircle /> Meta no alcanzada (Fase de Actuar - PHVA)</label>
-                                            <p className="text-xs text-rose-600 mb-3">La norma ISO 45004 requiere documentar una acción correctiva o de mejora cuando el desempeño no alcanza el objetivo planificado.</p>
-                                            <textarea required placeholder="Describa el plan de acción..." className="input-field border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 text-sm bg-white" rows="3" value={actionPlan} onChange={e=>setActionPlan(e.target.value)}></textarea>
-                                        </div>
-                                    )}
+                                    <div className={`p-5 rounded-2xl border transition-colors ${requiresAction ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-200'}`}>
+                                        <label className={`text-sm font-bold flex items-center gap-2 mb-2 ${requiresAction ? 'text-rose-800' : 'text-slate-700'}`}>
+                                            {requiresAction ? <><Icons.AlertCircle /> Plan de Acción Obligatorio (PHVA)</> : <><Icons.Lightbulb /> Notas / Comentarios (Opcional)</>}
+                                        </label>
+                                        {requiresAction && <p className="text-xs text-rose-600 mb-3">La meta no se cumplió. La norma exige documentar una acción correctiva.</p>}
+                                        <textarea required={requiresAction} placeholder={requiresAction ? "Describa el plan de acción responsable y fecha..." : "Añade un comentario, justificación o contexto a este resultado..."} className={`input-field text-sm bg-white ${requiresAction ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-300 focus:border-cyan-500'}`} rows="3" value={actionPlan} onChange={e=>setActionPlan(e.target.value)}></textarea>
+                                    </div>
 
-                                    <button type="submit" className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 hover:scale-[1.02] transition-all">Guardar Dato</button>
+                                    <button type="submit" className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 hover:scale-[1.02] transition-all">Guardar Dato Manual</button>
                                 </form>
                             </Card>
                         </div>
@@ -449,105 +630,35 @@
                 );
             };
 
-            const LibraryView = () => {
-                const [searchTerm, setSearchTerm] = useState('');
-                const filtered = fullLibrary.filter(ind => ind.name.toLowerCase().includes(searchTerm.toLowerCase()));
-                
-                const deleteCustom = (e, id) => {
-                    e.stopPropagation();
-                    openConfirm("Eliminar Indicador", "¿Seguro que deseas eliminar este indicador personalizado? Se borrarán sus datos históricos también.", () => {
-                        setCustomLibrary(customLibrary.filter(i=>i.id !== id));
-                        setActiveIds(activeIds.filter(i=>i !== id));
-                        const newRecs = {...records}; delete newRecs[id]; setRecords(newRecs);
-                        showToast("Indicador eliminado");
-                    });
-                };
-
-                return (
-                    <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-3xl shadow-2xl shadow-slate-900/20 relative overflow-hidden flex flex-col md:flex-row justify-between items-end border border-slate-700">
-                            <div className="relative z-10">
-                                <h2 className="text-3xl font-bold mb-2 text-white">Catálogo de Indicadores</h2>
-                                <p className="text-slate-300 max-w-lg">Selecciona qué medir en tu sistema de gestión. Usa "Crear Propio" si necesitas KPIs específicos.</p>
-                            </div>
-                            <div className="relative z-10 flex gap-2 mt-4 md:mt-0">
-                                <input className="bg-slate-800/80 border border-slate-600 text-white px-4 py-2 rounded-lg outline-none backdrop-blur-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 placeholder-slate-400" placeholder="Buscar..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
-                                <button onClick={() => setView('create')} className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all"><Icons.PlusCircle /> Crear Propio</button>
-                            </div>
-                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {filtered.map(ind => {
-                                const isActive = activeIds.includes(ind.id);
-                                return (
-                                    <div key={ind.id} onClick={() => toggleIndicator(ind.id)} className={`p-6 rounded-2xl border-2 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-white relative group ${isActive ? 'border-cyan-500 shadow-cyan-100' : 'border-slate-200'}`}>
-                                        <div className="flex justify-between mb-3">
-                                            <Badge text={ind.type} type={ind.type}/><div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 text-slate-300'}`}><Icons.Check/></div>
-                                        </div>
-                                        <h3 className={`font-bold text-lg mb-2 transition-colors ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>{ind.name}</h3>
-                                        <p className="text-sm text-slate-500 line-clamp-2">{ind.desc}</p>
-                                        <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 flex justify-between font-mono"><span>{ind.function}</span><span>{ind.source}</span></div>
-                                        {ind.source === 'Personalizado' && <button onClick={(e)=>deleteCustom(e, ind.id)} className="absolute bottom-3 right-14 p-1 text-slate-300 hover:text-rose-500 transition-colors"><Icons.Trash/></button>}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                );
-            };
-
-            const CreatorView = () => {
-                const [form, setForm] = useState({ name: '', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: '', help_what: '', help_why: '', help_labelNum: 'Numerador', help_labelDen: 'Denominador', help_example: '' });
-                const handleCreate = (e) => {
-                    e.preventDefault();
-                    const newInd = {
-                        id: `PRO-${Date.now().toString().slice(-4)}`, source: 'Personalizado', name: form.name, type: form.type, level: form.level, function: form.function, unit: form.unit, calc: form.calc, target: form.target, desc: form.desc,
-                        help: { what: form.help_what || form.desc, why: form.help_why || 'Importante para la gestión.', labelNum: form.help_labelNum, labelDen: form.help_labelDen, example: form.help_example || '-' }
-                    };
-                    setCustomLibrary([...customLibrary, newInd]);
-                    setActiveIds([...activeIds, newInd.id]);
-                    showToast("Indicador personalizado creado y activado");
-                    setView('library');
-                };
-
-                return (
-                    <div className="max-w-4xl mx-auto animate-fade-in space-y-6">
-                         <div className="flex items-center gap-4 mb-2">
-                            <button onClick={() => setView('library')} className="text-slate-500 hover:text-cyan-600 font-bold transition-colors">← Volver al Catálogo</button>
-                            <h2 className="text-2xl font-bold font-outfit text-slate-900">Crear Nuevo Indicador</h2>
-                        </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <Card className="p-6 border-t-4 border-t-slate-800">
-                                <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b border-slate-100 pb-2">1. Configuración Técnica</h3>
-                                <form id="creator-form" onSubmit={handleCreate} className="space-y-4">
-                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Nombre</label><input required className="input-field font-bold" value={form.name} onChange={e=>setForm({...form, name: e.target.value})} placeholder="Ej. Tasa de Cierre de Hallazgos" /></div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Tipo</label><select className="input-field" value={form.type} onChange={e=>setForm({...form, type: e.target.value})}><option>Proactivo</option><option>Reactivo</option></select></div>
-                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Cálculo</label><select className="input-field" value={form.calc} onChange={e=>setForm({...form, calc: e.target.value})}><option value="percentage">%</option><option value="rate">Tasa (Factor K)</option><option value="count">Conteo (#)</option><option value="average">Promedio</option></select></div>
-                                    </div>
-                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Meta</label><input type="number" className="input-field" value={form.target} onChange={e=>setForm({...form, target: e.target.value})} /></div>
-                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Descripción</label><textarea className="input-field" rows="2" value={form.desc} onChange={e=>setForm({...form, desc: e.target.value})} placeholder="Breve descripción del indicador..."></textarea></div>
-                                </form>
-                            </Card>
-                            <Card className="p-6 bg-slate-900 text-white border-slate-800 shadow-xl shadow-cyan-900/10">
-                                <h3 className="text-sm font-bold text-cyan-400 uppercase mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><Icons.Lightbulb /> 2. Profesor Virtual (Ayuda)</h3>
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div><label className="text-xs font-bold text-slate-400 block mb-1">A. Etiqueta Num.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelNum} onChange={e=>setForm({...form, help_labelNum: e.target.value})} /></div>
-                                        <div><label className="text-xs font-bold text-slate-400 block mb-1">B. Etiqueta Den.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelDen} onChange={e=>setForm({...form, help_labelDen: e.target.value})} /></div>
-                                    </div>
-                                    <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Qué es esto?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_what} onChange={e=>setForm({...form, help_what: e.target.value})}></textarea></div>
-                                    <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Por qué importa?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_why} onChange={e=>setForm({...form, help_why: e.target.value})}></textarea></div>
-                                    <button type="submit" form="creator-form" className="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:-translate-y-0.5">Guardar Indicador</button>
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                );
-            };
-
             const DashboardView = () => {
-                if (activeIndicators.length === 0) return <div className="text-center py-20 text-slate-400">Sin datos registrados. Ve al Catálogo.</div>;
+                if (activeIndicators.length === 0) return (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mx-4">
+                        <div className="bg-cyan-50 text-cyan-500 p-5 rounded-full mb-4"><Icons.Dashboard /></div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Tablero de Control Vacío</h3>
+                        <p className="text-slate-500 mb-6 text-center max-w-md">Tu tablero está listo para mostrar gráficas. Puedes empezar seleccionando indicadores en el Catálogo o importando tus datos históricos desde Excel.</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button onClick={() => setView('library')} className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2">Ir al Catálogo</button>
+                            <button onClick={() => setShowImportModal(true)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold shadow-sm border border-slate-300 transition-all flex items-center justify-center gap-2"><Icons.Upload /> Importar Excel</button>
+                        </div>
+                    </div>
+                );
+                
+                const downloadCardAsPNG = (id, name) => {
+                    const element = document.getElementById(`card-${id}`);
+                    if (element && window.html2canvas) {
+                        window.html2canvas(element, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = `KPI_${id}_${name.replace(/\s+/g, '_')}.png`;
+                            link.href = canvas.toDataURL('image/png');
+                            link.click();
+                            showToast(`Imagen exportada a PNG`);
+                        }).catch(err => {
+                            console.error("Error al exportar PNG:", err);
+                            showToast("Error al exportar la imagen");
+                        });
+                    }
+                };
+
                 return (
                     <div className="animate-fade-in space-y-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-xl shadow-sm border border-slate-200 no-print gap-4">
@@ -555,7 +666,10 @@
                                 <h2 className="font-bold text-xl text-slate-900">Panel de Resultados Tecnológicos</h2>
                                 <p className="text-sm text-slate-500 font-mono">Monitoreo en tiempo real de KPIs</p>
                             </div>
-                            <button onClick={exportCSV} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-cyan-400 px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors w-full sm:w-auto justify-center"><Icons.Download/> Exportar Datos (CSV)</button>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <button onClick={() => setShowImportModal(true)} className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm shadow-sm transition-colors border border-slate-300 w-full sm:w-auto"><Icons.Upload/> Importar</button>
+                                <button onClick={exportExcel} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors w-full sm:w-auto"><Icons.Download/> Exportar a Excel</button>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -563,16 +677,15 @@
                                 const data = records[ind.id] || [];
                                 const lastRec = data.length ? data[data.length-1] : null;
                                 const lastVal = lastRec ? lastRec.val : '-';
-                                
                                 let isGood = null;
-                                if (lastRec) {
-                                    isGood = ind.type === 'Reactivo' ? Number(lastVal) <= Number(ind.target) : Number(lastVal) >= Number(ind.target);
-                                }
+                                if (lastRec) { isGood = ind.type === 'Reactivo' ? Number(lastVal) <= Number(ind.target) : Number(lastVal) >= Number(ind.target); }
 
                                 return (
-                                    <Card key={ind.id} className="p-6 hover:shadow-lg transition-shadow flex flex-col justify-between border-t-4 border-t-slate-800">
+                                    <Card key={ind.id} id={`card-${ind.id}`} className="p-6 hover:shadow-lg transition-shadow flex flex-col justify-between border-t-4 border-t-slate-800 relative group">
+                                        <button data-html2canvas-ignore="true" onClick={() => downloadCardAsPNG(ind.id, ind.name)} title="Descargar como PNG" className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-cyan-100 text-slate-400 hover:text-cyan-600 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Icons.Camera /></button>
+
                                         <div>
-                                            <div className="flex justify-between items-start mb-4">
+                                            <div className="flex justify-between items-start mb-4 pr-10">
                                                 <div><Badge text={ind.type} type={ind.type}/><h3 className="font-bold text-slate-900 text-lg mt-2 leading-tight">{ind.name}</h3></div>
                                                 <div className="text-right">
                                                     <div className={`text-3xl font-extrabold font-mono flex items-center justify-end gap-1 tracking-tighter ${isGood === true ? 'text-emerald-500' : isGood === false ? 'text-rose-500' : 'text-slate-800'}`}>
@@ -586,9 +699,10 @@
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="bg-slate-50 rounded-xl p-2 border border-slate-100">
-                                                <TrendChart data={data} target={ind.target} type={ind.type} />
-                                            </div>
+                                            
+                                            {/* Gráfica siempre renderizada */}
+                                            <TrendChart data={data} target={ind.target} type={ind.type} />
+                                            
                                         </div>
                                         
                                         <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-3">
@@ -641,6 +755,11 @@
                                                     </tr>
                                                 );
                                             })}
+                                        {Object.keys(records).length === 0 && (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-slate-400 italic">No hay registros en el historial todavía.</td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -649,12 +768,104 @@
                 );
             };
 
+            const LibraryView = () => {
+                const [searchTerm, setSearchTerm] = useState('');
+                const filtered = fullLibrary.filter(ind => ind.name.toLowerCase().includes(searchTerm.toLowerCase()));
+                const deleteCustom = (e, id) => {
+                    e.stopPropagation();
+                    openConfirm("Eliminar Indicador", "¿Seguro que deseas eliminar este indicador personalizado? Se borrarán sus datos históricos también.", () => {
+                        setCustomLibrary(customLibrary.filter(i=>i.id !== id));
+                        setActiveIds(activeIds.filter(i=>i !== id));
+                        const newRecs = {...records}; delete newRecs[id]; setRecords(newRecs);
+                        showToast("Indicador eliminado");
+                    });
+                };
+                return (
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-3xl shadow-2xl shadow-slate-900/20 relative overflow-hidden flex flex-col md:flex-row justify-between items-end border border-slate-700">
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-bold mb-2 text-white">Catálogo de Indicadores</h2>
+                                <p className="text-slate-300 max-w-lg">Selecciona qué medir en tu sistema de gestión. Usa "Crear Propio" si necesitas KPIs específicos.</p>
+                            </div>
+                            <div className="relative z-10 flex gap-2 mt-4 md:mt-0">
+                                <input className="bg-slate-800/80 border border-slate-600 text-white px-4 py-2 rounded-lg outline-none backdrop-blur-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 placeholder-slate-400" placeholder="Buscar..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
+                                <button onClick={() => setView('create')} className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all"><Icons.PlusCircle /> Crear Propio</button>
+                            </div>
+                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {filtered.map(ind => {
+                                const isActive = activeIds.includes(ind.id);
+                                return (
+                                    <div key={ind.id} onClick={() => toggleIndicator(ind.id)} className={`p-6 rounded-2xl border-2 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-white relative group ${isActive ? 'border-cyan-500 shadow-cyan-100' : 'border-slate-200'}`}>
+                                        <div className="flex justify-between mb-3">
+                                            <Badge text={ind.type} type={ind.type}/><div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 text-slate-300'}`}><Icons.Check/></div>
+                                        </div>
+                                        <h3 className={`font-bold text-lg mb-2 transition-colors ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>{ind.name}</h3>
+                                        <p className="text-sm text-slate-500 line-clamp-2">{ind.desc}</p>
+                                        <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 flex justify-between font-mono"><span>{ind.function}</span><span>{ind.source}</span></div>
+                                        {ind.source === 'Personalizado' && <button onClick={(e)=>deleteCustom(e, ind.id)} className="absolute bottom-3 right-14 p-1 text-slate-300 hover:text-rose-500 transition-colors"><Icons.Trash/></button>}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
+            };
+
+            const CreatorView = () => {
+                const [form, setForm] = useState({ name: '', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: '', help_what: '', help_why: '', help_labelNum: 'Numerador', help_labelDen: 'Denominador', help_example: '' });
+                const handleCreate = (e) => {
+                    e.preventDefault();
+                    const newInd = {
+                        id: `PRO-${Date.now().toString().slice(-4)}`, source: 'Personalizado', name: form.name, type: form.type, level: form.level, function: form.function, unit: form.unit, calc: form.calc, target: form.target, desc: form.desc,
+                        help: { what: form.help_what || form.desc, why: form.help_why || 'Importante para la gestión.', labelNum: form.help_labelNum, labelDen: form.help_labelDen, example: form.help_example || '-' }
+                    };
+                    setCustomLibrary([...customLibrary, newInd]);
+                    setActiveIds([...activeIds, newInd.id]);
+                    showToast("Indicador personalizado creado y activado");
+                    setView('library');
+                };
+                return (
+                    <div className="max-w-4xl mx-auto animate-fade-in space-y-6">
+                         <div className="flex items-center gap-4 mb-2">
+                            <button onClick={() => setView('library')} className="text-slate-500 hover:text-cyan-600 font-bold transition-colors">← Volver al Catálogo</button>
+                            <h2 className="text-2xl font-bold font-outfit text-slate-900">Crear Nuevo Indicador</h2>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <Card className="p-6 border-t-4 border-t-slate-800">
+                                <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b border-slate-100 pb-2">1. Configuración Técnica</h3>
+                                <form id="creator-form" onSubmit={handleCreate} className="space-y-4">
+                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Nombre</label><input required className="input-field font-bold" value={form.name} onChange={e=>setForm({...form, name: e.target.value})} placeholder="Ej. Tasa de Cierre de Hallazgos" /></div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Tipo</label><select className="input-field" value={form.type} onChange={e=>setForm({...form, type: e.target.value})}><option>Proactivo</option><option>Reactivo</option></select></div>
+                                        <div><label className="text-xs font-bold text-slate-600 block mb-1">Cálculo</label><select className="input-field" value={form.calc} onChange={e=>setForm({...form, calc: e.target.value})}><option value="percentage">%</option><option value="rate">Tasa (Factor K)</option><option value="count">Conteo (#)</option><option value="average">Promedio</option></select></div>
+                                    </div>
+                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Meta</label><input type="number" className="input-field" value={form.target} onChange={e=>setForm({...form, target: e.target.value})} /></div>
+                                    <div><label className="text-xs font-bold text-slate-600 block mb-1">Descripción</label><textarea className="input-field" rows="2" value={form.desc} onChange={e=>setForm({...form, desc: e.target.value})} placeholder="Breve descripción del indicador..."></textarea></div>
+                                </form>
+                            </Card>
+                            <Card className="p-6 bg-slate-900 text-white border-slate-800 shadow-xl shadow-cyan-900/10">
+                                <h3 className="text-sm font-bold text-cyan-400 uppercase mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><Icons.Lightbulb /> 2. Profesor Virtual (Ayuda)</h3>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div><label className="text-xs font-bold text-slate-400 block mb-1">A. Etiqueta Num.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelNum} onChange={e=>setForm({...form, help_labelNum: e.target.value})} /></div>
+                                        <div><label className="text-xs font-bold text-slate-400 block mb-1">B. Etiqueta Den.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelDen} onChange={e=>setForm({...form, help_labelDen: e.target.value})} /></div>
+                                    </div>
+                                    <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Qué es esto?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_what} onChange={e=>setForm({...form, help_what: e.target.value})}></textarea></div>
+                                    <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Por qué importa?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_why} onChange={e=>setForm({...form, help_why: e.target.value})}></textarea></div>
+                                    <button type="submit" form="creator-form" className="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:-translate-y-0.5">Guardar Indicador</button>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                );
+            };
+
             return (
                 <div className="min-h-screen flex flex-col font-outfit text-slate-800 pb-20">
                     <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
                         <div className="max-w-7xl mx-auto px-4 md:px-6 h-24 flex items-center justify-between">
-                            
-                            {/* LOGO Y TÍTULOS ACTUALIZADOS */}
                             <div className="flex items-center gap-4">
                                 <img src="https://assets.poap.xyz/04118473-016e-4c9a-83b6-6ae33fbbfd8f.png" alt="Academia Movida SST" className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] rounded-full border border-cyan-500/20" />
                                 <div>
@@ -675,13 +886,19 @@
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-1 border-l border-slate-200 pl-2 md:pl-4 ml-1 md:ml-2">
-                                    <button onClick={loadDemoData} title="Cargar Demo" className="p-2 md:px-3 md:py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-indigo-100">
-                                        <Icons.Play/> <span className="hidden md:inline">Demo</span>
-                                    </button>
-                                    <button onClick={resetData} title="Borrar Todo" className="p-2 md:px-3 md:py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-rose-100">
-                                        <Icons.Refresh/> <span className="hidden md:inline">Limpiar</span>
-                                    </button>
+                                    <button onClick={loadDemoData} title="Cargar Demo" className="p-2 md:px-3 md:py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-indigo-100"><Icons.Play/> <span className="hidden md:inline">Demo</span></button>
+                                    <button onClick={resetData} title="Borrar Todo" className="p-2 md:px-3 md:py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-rose-100"><Icons.Refresh/> <span className="hidden md:inline">Limpiar</span></button>
                                     <button onClick={() => setShowSettings(true)} title="Configuración" className="p-2.5 bg-slate-900 text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shadow-lg hover:shadow-cyan-900/20 ml-1 md:ml-2"><Icons.Settings/></button>
+                                    
+                                    {/* NUEVO BOTÓN UNETE A LA ACADEMIA */}
+                                    <a 
+                                        href="https://movidasst.org/login/index.php" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="ml-2 hidden md:flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-cyan-500/30 transition-all hover:scale-105 border border-cyan-400/30"
+                                    >
+                                        Únete a la Academia <Icons.ExternalLink />
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -699,29 +916,22 @@
                     </main>
 
                     {/* Modales y Alertas UI */}
+                    <ImportModal />
                     {modalConfig.isOpen && (
                         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in">
                             <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-sm text-center transform scale-100 transition-all">
                                 <div className="flex justify-center mb-4">
-                                    {modalConfig.isAlert ? 
-                                        <div className="p-3 bg-rose-500/20 text-rose-400 rounded-full"><Icons.AlertCircle /></div> : 
-                                        <div className="p-3 bg-cyan-500/20 text-cyan-400 rounded-full"><Icons.Lightbulb /></div>
-                                    }
+                                    {modalConfig.isAlert ? <div className="p-3 bg-rose-500/20 text-rose-400 rounded-full"><Icons.AlertCircle /></div> : <div className="p-3 bg-cyan-500/20 text-cyan-400 rounded-full"><Icons.Lightbulb /></div>}
                                 </div>
                                 <h2 className="text-xl font-bold mb-2 text-white">{modalConfig.title}</h2>
                                 <p className="text-slate-400 mb-6 text-sm">{modalConfig.message}</p>
                                 <div className="flex flex-col sm:flex-row justify-center gap-3">
-                                    {!modalConfig.isAlert && (
-                                        <button onClick={closeModal} className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-colors w-full">Cancelar</button>
-                                    )}
-                                    <button onClick={() => { if(modalConfig.onConfirm) modalConfig.onConfirm(); closeModal(); }} className={`px-5 py-2.5 rounded-xl font-bold transition-colors w-full text-white ${modalConfig.isAlert ? 'bg-rose-600 hover:bg-rose-500' : 'bg-cyan-600 hover:bg-cyan-500'}`}>
-                                        Aceptar
-                                    </button>
+                                    {!modalConfig.isAlert && <button onClick={closeModal} className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-colors w-full">Cancelar</button>}
+                                    <button onClick={() => { if(modalConfig.onConfirm) modalConfig.onConfirm(); closeModal(); }} className={`px-5 py-2.5 rounded-xl font-bold transition-colors w-full text-white ${modalConfig.isAlert ? 'bg-rose-600 hover:bg-rose-500' : 'bg-cyan-600 hover:bg-cyan-500'}`}>Aceptar</button>
                                 </div>
                             </div>
                         </div>
                     )}
-
                     <Toast message={toastMsg} onClose={() => setToastMsg('')} />
                     <SettingsModal />
                 </div>
