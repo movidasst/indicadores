@@ -80,7 +80,6 @@
 
         // --- BASE DE DATOS MAESTRA ---
         const DEFAULT_LIBRARY = [
-            // VISION ZERO
             { id: 'VZ-1.1', source: 'Vision Zero', name: 'Compromiso Visible del Liderazgo', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 80, desc: 'Mide qué tan activos son los jefes en terreno.', help: { what: 'Muestra si los gerentes realmente bajan a planta.', why: 'El ejemplo arrastra y muestra compromiso real.', labelNum: 'Visitas realizadas', labelDen: 'Visitas programadas', example: 'El gerente hizo 2 de 4 visitas mensuales.' } },
             { id: 'VZ-1.2', source: 'Vision Zero', name: 'Liderazgo Competente', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 100, desc: 'Nuevos directivos con criterios SST.', help: { what: '% de jefes contratados evaluando sus competencias en seguridad.', why: 'Evita ingresar líderes que no valoran la prevención.', labelNum: 'Líderes evaluados en SST', labelDen: 'Total líderes contratados', example: 'Se contrataron 3 gerentes, a los 3 se les evaluó en SST.' } },
             { id: 'VZ-2.1', source: 'Vision Zero', name: 'Eficacia en Control de Riesgos', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: 'Verifica si los controles realmente funcionan.', help: { what: '% de medidas de control inspeccionadas que son efectivas.', why: 'Tener el control en papel no basta, debe funcionar en terreno.', labelNum: 'Controles efectivos', labelDen: 'Controles evaluados', example: 'De 10 guardas de seguridad revisadas, 9 funcionaban bien.' } },
@@ -149,25 +148,24 @@
             return <span className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[text] || styles['Operativo']}`}>{text}</span>;
         };
 
-        // --- MOTOR GRÁFICO MEJORADO V9 (Ventana deslizante de 12 meses) ---
+        // --- MOTOR GRÁFICO TOTALMENTE REDISEÑADO (Cero solapamiento, responsivo, tooltips inteligentes) ---
         const TrendChart = ({ data, target, type }) => {
-            const height = 100; 
-            const width = 280; 
-            const paddingX = 15; 
-            const paddingYTop = 15; 
-            const paddingYBottom = 20; 
+            const height = 120; 
+            const width = 320; 
+            const paddingX = 25; 
+            const paddingYTop = 35; 
+            const paddingYBottom = 25; 
             
-            // Limitamos a los últimos 12 registros para evitar superposición en pantallas largas
             const displayData = data && data.length > 0 ? data.slice(-12) : [];
             const hasData = displayData.length > 0;
             const values = hasData ? displayData.map(d => parseFloat(d.val)) : [];
             
-            const maxVal = Math.max(...(hasData ? values : [0]), target || 0) * 1.15 || 5; 
+            const maxVal = Math.max(...(hasData ? values : [0]), target || 0) * 1.2 || 5; 
             
             const calcY = (val) => height - paddingYBottom - ((val / maxVal) * (height - paddingYTop - paddingYBottom));
-            const calcX = (i) => paddingX + (i * ((width - paddingX * 2) / (values.length - 1 || 1)));
+            const calcX = (i) => values.length === 1 ? width / 2 : paddingX + (i * ((width - paddingX * 2) / (values.length - 1)));
 
-            const targetY = target ? calcY(target) : null;
+            const targetY = target !== undefined && target !== null && target !== '' ? calcY(target) : null;
             const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; 
             
             let points = "";
@@ -176,14 +174,20 @@
             }
             
             return (
-                <div className="relative w-full h-28 bg-slate-50/50 rounded-lg overflow-visible border border-slate-100 mt-2">
+                <div className="relative w-full h-32 bg-slate-50/50 rounded-xl overflow-hidden border border-slate-100 mt-2">
                     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
                         <line x1={paddingX} y1={height - paddingYBottom} x2={width - paddingX} y2={height - paddingYBottom} stroke="#cbd5e1" strokeWidth="1" />
-                        {targetY && <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>}
+                        
+                        {targetY !== null && (
+                            <>
+                                <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>
+                                <text x={width - paddingX + 15} y={targetY - 5} textAnchor="end" fontSize="8" fill="#f59e0b" fontWeight="bold">Meta: {target}</text>
+                            </>
+                        )}
                         
                         {hasData ? (
                             <>
-                                <polygon points={`${paddingX},${height - paddingYBottom} ${points} ${width-paddingX},${height - paddingYBottom}`} fill={lineColor} fillOpacity="0.1" />
+                                <polygon points={`${values.length === 1 ? width/2 : paddingX},${height - paddingYBottom} ${points} ${values.length === 1 ? width/2 : width-paddingX},${height - paddingYBottom}`} fill={lineColor} fillOpacity="0.1" />
                                 <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                 
                                 {displayData.map((d, i) => {
@@ -191,22 +195,26 @@
                                     const x = calcX(i);
                                     const y = calcY(val);
                                     const yearLabel = d.year ? ` ${d.year.toString().slice(-2)}` : '';
+                                    
+                                    const tooltipRectY = y < 30 ? y + 10 : y - 25;
+                                    const tooltipTextY = y < 30 ? y + 21 : y - 14;
+
                                     return (
                                         <g key={i} className="group">
-                                            <text x={x} y={height - 6} fontSize="8" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}{yearLabel}</text>
+                                            <text x={x} y={height - 8} fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}{yearLabel}</text>
                                             <circle cx={x} cy={y} r="3.5" fill="white" stroke={lineColor} strokeWidth="2" className="transition-all cursor-pointer hover:stroke-4" />
-                                            <rect x={x - 18} y={y - 25} width="36" height="16" rx="4" fill="#0f172a" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg" />
-                                            <text x={x} y={y - 14} fontSize="9" fill="#ffffff" textAnchor="middle" fontWeight="bold" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">{val}</text>
+                                            
+                                            <rect x={x - 18} y={tooltipRectY} width="36" height="16" rx="4" fill="#0f172a" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg" />
+                                            <text x={x} y={tooltipTextY} fontSize="9" fill="#ffffff" textAnchor="middle" fontWeight="bold" className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">{val}</text>
                                         </g>
                                     );
                                 })}
                             </>
                         ) : (
-                            <text x="50%" y="40%" dominantBaseline="middle" textAnchor="middle" fill="#94a3b8" fontSize="11" fontFamily="sans-serif" fontWeight="bold">Esperando registros...</text>
+                            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#94a3b8" fontSize="12" fontFamily="sans-serif" fontWeight="bold">Esperando registros...</text>
                         )}
                     </svg>
-                    {target && <div className="absolute top-1 right-1 text-[9px] text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded font-bold border border-amber-200/50 shadow-sm backdrop-blur-sm pointer-events-none">Meta: {target}</div>}
-                    {data && data.length > 12 && <div className="absolute bottom-1 right-1 text-[8px] text-slate-400 font-mono">Mostrando ult 12m</div>}
+                    {data && data.length > 12 && <div className="absolute bottom-1 right-2 text-[9px] text-slate-400 font-mono">Mostrando ult 12m</div>}
                 </div>
             );
         };
@@ -231,16 +239,13 @@
             const [showSettings, setShowSettings] = useState(false);
             const [showImportModal, setShowImportModal] = useState(false);
             
-            // Modal de Alertas/Confirmaciones
             const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isAlert: false });
             const openConfirm = (title, message, onConfirm) => setModalConfig({ isOpen: true, title, message, onConfirm, isAlert: false });
             const openAlert = (title, message) => setModalConfig({ isOpen: true, title, message, onConfirm: null, isAlert: true });
             const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
-            // NUEVO: Estado para el Modal de Edición de Registros
-            const [editingRecord, setEditingRecord] = useState(null); // { indId, record }
+            const [editingRecord, setEditingRecord] = useState(null); 
 
-            // Estado Persistente
             const [customLibrary, setCustomLibrary] = useState(() => safeJSONParse('iso45004_custom_v9', []));
             const [activeIds, setActiveIds] = useState(() => safeJSONParse('iso45004_active_ids_v9', []));
             const [records, setRecords] = useState(() => safeJSONParse('iso45004_records_v9', {}));
@@ -258,8 +263,14 @@
 
             const showToast = (msg) => setToastMsg(msg);
 
+            // --- FUNCIÓN MATEMÁTICA CON TOPE DEL 100% PARA PORCENTAJES ---
             const calculateValue = (method, num, den) => {
-                if (method === 'percentage') return den > 0 ? ((num / den) * 100).toFixed(1) : 0;
+                if (method === 'percentage') {
+                    if (den <= 0) return 0;
+                    const val = (num / den) * 100;
+                    // Limitamos matemáticamente al 100%
+                    return val > 100 ? "100.0" : val.toFixed(1);
+                }
                 if (method === 'rate') return den > 0 ? ((num / den) * kFactor).toFixed(2) : 0;
                 if (method === 'average') return den > 0 ? (num / den).toFixed(1) : num;
                 return num;
@@ -285,7 +296,6 @@
                 setRecords({...records, [indId]: updated});
             };
 
-            // NUEVA FUNCIÓN: Actualizar un registro existente
             const handleUpdateRecord = (e) => {
                 e.preventDefault();
                 if (!editingRecord) return;
@@ -312,7 +322,7 @@
                 });
                 
                 setRecords({...records, [indId]: updatedRecs});
-                setEditingRecord(null); // Cerrar modal
+                setEditingRecord(null); 
                 showToast("Registro actualizado exitosamente");
             };
 
@@ -465,7 +475,7 @@
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 3, den: 4, val: 75, actionPlan: 'Faltó 1 visita por viaje gerencial. Se agendó para febrero.', actionStatus: 'Cerrado' },
                             { id: crypto.randomUUID(), year: currYear, month: 'Feb', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
                             { id: crypto.randomUUID(), year: currYear, month: 'Mar', num: 4, den: 4, val: 100, actionPlan: '', actionStatus: null },
-                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 125, actionPlan: '', actionStatus: null }
+                            { id: crypto.randomUUID(), year: currYear, month: 'Abr', num: 5, den: 4, val: 100, actionPlan: '', actionStatus: null } // Limitado a 100 en la demo también
                         ],
                         'VZ-4.1': [ 
                             { id: crypto.randomUUID(), year: currYear, month: 'Ene', num: 15, den: 20, val: 75, actionPlan: 'Supervisores olvidan registro. Se implementará uso de App móvil obligatoria.', actionStatus: 'Cerrado' },
@@ -506,7 +516,6 @@
 
             // --- VISTAS ---
             
-            // MODAL DE EDICIÓN DE REGISTRO
             const EditRecordModal = () => {
                 if (!editingRecord) return null;
                 const { indId, record } = editingRecord;
@@ -515,7 +524,7 @@
 
                 return (
                     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-fade-in">
-                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white max-h-[90vh] overflow-y-auto">
                             <h2 className="text-xl font-bold mb-1 flex items-center gap-2 text-cyan-400"><Icons.Edit/> Editar Registro</h2>
                             <p className="text-sm text-slate-400 mb-5">{ind.name} <span className="text-cyan-400 ml-1 font-mono">({record.month} {record.year})</span></p>
                             
@@ -532,13 +541,20 @@
                                             value={record.den} onChange={e => setEditingRecord({...editingRecord, record: {...record, den: e.target.value}})} />
                                     </div>
                                 )}
+                                
+                                {ind.calc === 'percentage' && parseFloat(record.num) > parseFloat(record.den) && parseFloat(record.den) > 0 && (
+                                    <div className="text-xs text-emerald-400 bg-emerald-900/30 p-2 rounded border border-emerald-800/50">
+                                        Has superado lo planeado. El cumplimiento se ajustará al 100%.
+                                    </div>
+                                )}
+
                                 <div>
                                     <label className="text-xs font-bold text-slate-400 block mb-1">Plan de Acción / Notas (Opcional si cumple meta)</label>
                                     <textarea className="input-field bg-slate-800 border-slate-600 text-white focus:border-cyan-500 text-sm" rows="3" 
                                         value={record.actionPlan || ''} onChange={e => setEditingRecord({...editingRecord, record: {...record, actionPlan: e.target.value}})}></textarea>
                                 </div>
                                 
-                                <div className="mt-6 flex justify-end gap-3 pt-2 border-t border-slate-700">
+                                <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-700">
                                     <button type="button" onClick={() => setEditingRecord(null)} className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-colors w-full">Cancelar</button>
                                     <button type="submit" className="px-5 py-2.5 rounded-xl font-bold transition-colors w-full text-white bg-cyan-600 hover:bg-cyan-500 shadow-lg shadow-cyan-600/30">Guardar Cambios</button>
                                 </div>
@@ -576,7 +592,7 @@
                 if (!showImportModal) return null;
                 return (
                     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white">
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-cyan-900/20 p-6 w-full max-w-md text-white max-h-[90vh] overflow-y-auto">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-cyan-400"><Icons.Upload/> Importación Masiva (Excel)</h2>
                             <div className="space-y-5">
                                 <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
@@ -606,7 +622,7 @@
                 if (activeIndicators.length === 0) return (
                     <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mx-4">
                         <div className="bg-cyan-50 text-cyan-500 p-5 rounded-full mb-4"><Icons.Library /></div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Aún no hay indicadores activos</h3>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2 text-center">Aún no hay indicadores activos</h3>
                         <p className="text-slate-500 mb-6 text-center max-w-md">Para ingresar datos, primero debes seleccionar los KPIs que deseas medir desde el catálogo o importar tu archivo Excel directamente.</p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button onClick={() => setView('library')} className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2">Ir al Catálogo</button>
@@ -648,14 +664,14 @@
                 return (
                     <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-12 gap-8">
                         <div className="lg:col-span-7 space-y-6">
-                            <Card className="p-8 border-t-4 border-t-cyan-500">
-                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Registrar Medición Mensual</h2>
+                            <Card className="p-6 md:p-8 border-t-4 border-t-cyan-500">
+                                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-6">Registrar Medición Mensual</h2>
                                 <form onSubmit={handleSave} className="space-y-6">
                                     <div>
                                         <label className="text-xs font-bold text-slate-500 uppercase">Indicador Seleccionado</label>
                                         <select className="input-field font-bold bg-slate-50 mt-1" value={selectedId} onChange={e=>setSelectedId(e.target.value)}>{activeIndicators.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="text-xs font-bold text-slate-500 uppercase">Año</label>
                                             <select className="input-field bg-slate-50 mt-1" value={year} onChange={e=>setYear(Number(e.target.value))}>
@@ -668,7 +684,7 @@
                                         </div>
                                     </div>
 
-                                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4 shadow-inner">
+                                    <div className="bg-slate-50 p-5 md:p-6 rounded-2xl border border-slate-200 space-y-4 shadow-inner">
                                         <div>
                                             <label className="text-sm font-bold text-slate-700 block mb-1 flex justify-between"><span>A. {help.labelNum}</span></label>
                                             <input type="number" step="0.01" required className="input-field text-lg font-mono bg-white shadow-sm" value={num} onChange={e=>setNum(e.target.value)} placeholder="0" />
@@ -677,7 +693,16 @@
                                             <label className="text-sm font-bold text-slate-700 block mb-1 flex justify-between"><span>B. {help.labelDen}</span></label>
                                             <input type="number" step="0.01" required className="input-field text-lg font-mono bg-white shadow-sm" value={den} onChange={e=>setDen(e.target.value)} placeholder="0" />
                                         </div>}
-                                        <div className="pt-4 border-t border-slate-200 mt-4 flex justify-between items-center text-sm font-mono bg-slate-900 text-white p-4 rounded-xl shadow-lg">
+                                        
+                                        {/* ALERTA VISUAL DE TOPE DE PORCENTAJE */}
+                                        {currentInd.calc === 'percentage' && parseFloat(num) > parseFloat(den) && parseFloat(den) > 0 && (
+                                            <div className="text-xs text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 flex items-start gap-2">
+                                                <div className="shrink-0"><Icons.CheckCircle /></div>
+                                                <p><strong>¡Superaste lo planeado!</strong> Matemáticamente el cumplimiento se limitará al <strong>100%</strong> para no distorsionar tus estadísticas y promedios.</p>
+                                            </div>
+                                        )}
+
+                                        <div className="pt-4 border-t border-slate-200 mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm font-mono bg-slate-900 text-white p-4 rounded-xl shadow-lg">
                                             <span className="text-slate-300">Valor Calculado:</span>
                                             <span className={`font-bold text-xl ${num ? (isTargetMet ? 'text-emerald-400' : 'text-rose-400') : 'text-slate-500'}`}>
                                                 {simulated} <span className="text-sm font-normal">{currentInd.unit}</span>
@@ -719,7 +744,7 @@
                 if (activeIndicators.length === 0) return (
                     <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mx-4">
                         <div className="bg-cyan-50 text-cyan-500 p-5 rounded-full mb-4"><Icons.Dashboard /></div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Tablero de Control Vacío</h3>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2 text-center">Tablero de Control Vacío</h3>
                         <p className="text-slate-500 mb-6 text-center max-w-md">Tu tablero está listo para mostrar gráficas. Puedes empezar seleccionando indicadores en el Catálogo o importando tus datos históricos desde Excel.</p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button onClick={() => setView('library')} className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2">Ir al Catálogo</button>
@@ -763,16 +788,16 @@
                                 <p className="text-sm text-slate-500 font-mono">Monitoreo en tiempo real de KPIs</p>
                             </div>
                             
-                            <div className="flex bg-slate-100 p-1 rounded-lg w-full lg:w-auto overflow-x-auto">
+                            <div className="flex bg-slate-100 p-1 rounded-lg w-full lg:w-auto overflow-x-auto no-scrollbar">
                                 <button onClick={() => setDashFilter('ALL')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'ALL' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>Todos</button>
                                 <button onClick={() => setDashFilter('PRO')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'PRO' ? 'bg-cyan-100 text-cyan-700' : 'text-slate-500'}`}>Proactivos</button>
                                 <button onClick={() => setDashFilter('REA')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors ${dashFilter === 'REA' ? 'bg-rose-100 text-rose-700' : 'text-slate-500'}`}>Reactivos</button>
-                                <button onClick={() => setDashFilter('ALERT')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors flex items-center gap-1 ${dashFilter === 'ALERT' ? 'bg-amber-100 text-amber-700' : 'text-slate-500'}`}><Icons.AlertCircle/> Alertas PHVA</button>
+                                <button onClick={() => setDashFilter('ALERT')} className={`px-4 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-colors flex items-center gap-1 ${dashFilter === 'ALERT' ? 'bg-amber-100 text-amber-700' : 'text-slate-500'}`}><Icons.AlertCircle/> Alertas</button>
                             </div>
 
-                            <div className="flex gap-2 w-full lg:w-auto">
-                                <button onClick={() => setShowImportModal(true)} className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm shadow-sm transition-colors border border-slate-300 w-full sm:w-auto"><Icons.Upload/> Importar</button>
-                                <button onClick={exportExcel} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors w-full sm:w-auto"><Icons.Download/> a Excel</button>
+                            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                                <button onClick={() => setShowImportModal(true)} className="flex flex-1 items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm shadow-sm transition-colors border border-slate-300"><Icons.Upload/> Importar</button>
+                                <button onClick={exportExcel} className="flex flex-1 items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors"><Icons.Download/> Excel</button>
                             </div>
                         </div>
 
@@ -794,20 +819,26 @@
                                             <button data-html2canvas-ignore="true" onClick={() => downloadCardAsPNG(ind.id, ind.name)} title="Descargar como PNG" className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-cyan-100 text-slate-400 hover:text-cyan-600 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm"><Icons.Camera /></button>
 
                                             <div>
-                                                <div className="flex justify-between items-start mb-4 pr-10">
-                                                    <div><Badge text={ind.type} type={ind.type}/><h3 className="font-bold text-slate-900 text-lg mt-2 leading-tight">{ind.name}</h3></div>
-                                                    <div className="text-right">
-                                                        <div className={`text-3xl font-extrabold font-mono flex items-center justify-end gap-1 tracking-tighter ${isGood === true ? 'text-emerald-500' : isGood === false ? 'text-rose-500' : 'text-slate-800'}`}>
-                                                            {lastVal}
-                                                            <span className="text-sm text-slate-400 font-sans tracking-normal">{ind.unit}</span>
-                                                        </div>
-                                                        {isGood !== null && (
-                                                            <div className="flex items-center justify-end gap-1 mt-1">
-                                                                {isGood ? <span className="text-emerald-500 flex items-center text-xs font-bold gap-1"><Icons.CheckCircle/> En Meta</span> : <span className="text-rose-500 flex items-center text-xs font-bold gap-1"><Icons.AlertCircle/> Alerta</span>}
-                                                            </div>
-                                                        )}
+                                                <div className="mb-4 pr-8">
+                                                    <div className="mb-2">
+                                                        <Badge text={ind.type} type={ind.type}/>
                                                     </div>
+                                                    <h3 className="font-bold text-slate-900 text-lg sm:text-xl leading-snug break-words">{ind.name}</h3>
                                                 </div>
+                                                
+                                                <div className="text-left mb-2">
+                                                    <div className={`text-3xl font-extrabold font-mono flex items-center gap-1 tracking-tighter ${isGood === true ? 'text-emerald-500' : isGood === false ? 'text-rose-500' : 'text-slate-800'}`}>
+                                                        {lastVal}
+                                                        <span className="text-sm text-slate-400 font-sans tracking-normal">{ind.unit}</span>
+                                                    </div>
+                                                    {isGood !== null && (
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            {isGood ? <span className="text-emerald-500 flex items-center text-xs font-bold gap-1"><Icons.CheckCircle/> En Meta</span> : <span className="text-rose-500 flex items-center text-xs font-bold gap-1"><Icons.AlertCircle/> Alerta</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Motor Gráfico completamente rediseñado sin solapamientos HTML */}
                                                 <TrendChart data={data} target={ind.target} type={ind.type} />
                                             </div>
                                             
@@ -819,7 +850,7 @@
                                                 {openActions.length > 0 && (
                                                     <div className="bg-rose-50 text-rose-800 p-3 rounded-lg border border-rose-200">
                                                         <span className="font-bold text-rose-900 flex items-center gap-1 mb-1"><Icons.AlertCircle/> {openActions.length} PHVA Pendiente(s):</span> 
-                                                        <span className="italic">{openActions[openActions.length-1].actionPlan}</span>
+                                                        <span className="italic break-words">{openActions[openActions.length-1].actionPlan}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -834,10 +865,10 @@
                                 <Icons.Data /> Historial de Registro y Cierre de PHVA
                             </div>
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
+                                <table className="w-full text-left text-sm min-w-[800px]">
                                     <thead className="bg-slate-50 font-bold text-slate-500 uppercase text-xs">
                                         <tr>
-                                            <th className="p-4 border-b border-slate-200">Indicador (KPI)</th>
+                                            <th className="p-4 border-b border-slate-200 whitespace-nowrap">Indicador (KPI)</th>
                                             <th className="p-4 border-b border-slate-200">Periodo</th>
                                             <th className="p-4 border-b border-slate-200 text-right">Resultado</th>
                                             <th className="p-4 border-b border-slate-200">Plan de Acción / Notas</th>
@@ -857,16 +888,16 @@
                                                 const ind = fullLibrary.find(i => i.id === rec.indId) || {};
                                                 return (
                                                     <tr key={rec.id} className="hover:bg-cyan-50/30 transition-colors">
-                                                        <td className="p-4 font-bold text-slate-800">{ind.name}</td>
-                                                        <td className="p-4 text-slate-500 font-mono bg-slate-50 w-24 text-center">{rec.month} {rec.year}</td>
-                                                        <td className="p-4 text-right font-mono font-bold text-cyan-600">{rec.val} <span className="text-slate-400 text-xs">{ind.unit}</span></td>
+                                                        <td className="p-4 font-bold text-slate-800 max-w-[200px] truncate" title={ind.name}>{ind.name}</td>
+                                                        <td className="p-4 text-slate-500 font-mono bg-slate-50 w-24 text-center whitespace-nowrap">{rec.month} {rec.year}</td>
+                                                        <td className="p-4 text-right font-mono font-bold text-cyan-600 whitespace-nowrap">{rec.val} <span className="text-slate-400 text-xs">{ind.unit}</span></td>
                                                         <td className="p-4 text-slate-600 italic text-xs max-w-xs truncate" title={rec.actionPlan}>{rec.actionPlan || <span className="text-slate-300">N/A</span>}</td>
                                                         
                                                         <td className="p-4 text-center">
                                                             {rec.actionStatus ? (
                                                                 <button 
                                                                     onClick={() => toggleActionStatus(rec.indId, rec.id)}
-                                                                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-colors border ${rec.actionStatus === 'Abierto' ? 'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200' : 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200'}`}
+                                                                    className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-colors border whitespace-nowrap ${rec.actionStatus === 'Abierto' ? 'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200' : 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200'}`}
                                                                 >
                                                                     {rec.actionStatus === 'Abierto' ? '🔴 Abierto' : '✅ Cerrado'}
                                                                 </button>
@@ -875,8 +906,7 @@
                                                             )}
                                                         </td>
                                                         
-                                                        <td className="p-4 text-right flex items-center justify-end gap-2">
-                                                            {/* NUEVO BOTON EDITAR */}
+                                                        <td className="p-4 text-right flex items-center justify-end gap-3">
                                                             <button onClick={() => setEditingRecord({indId: rec.indId, record: {...rec}})} className="text-slate-400 hover:text-cyan-500 transition-colors" title="Editar"><Icons.Edit/></button>
                                                             <button onClick={() => handleDeleteRecord(rec.indId, rec.id)} className="text-slate-400 hover:text-rose-500 transition-colors" title="Eliminar"><Icons.Trash/></button>
                                                         </td>
@@ -910,29 +940,32 @@
                 };
                 return (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-3xl shadow-2xl shadow-slate-900/20 relative overflow-hidden flex flex-col md:flex-row justify-between items-end border border-slate-700">
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 md:p-8 rounded-3xl shadow-2xl shadow-slate-900/20 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end border border-slate-700 gap-4">
                             <div className="relative z-10">
-                                <h2 className="text-3xl font-bold mb-2 text-white">Catálogo de Indicadores</h2>
-                                <p className="text-slate-300 max-w-lg">Selecciona qué medir en tu sistema de gestión. Usa "Crear Propio" si necesitas KPIs específicos.</p>
+                                <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">Catálogo de Indicadores</h2>
+                                <p className="text-slate-300 max-w-lg text-sm md:text-base">Selecciona qué medir en tu sistema de gestión. Usa "Crear Propio" si necesitas KPIs específicos.</p>
                             </div>
-                            <div className="relative z-10 flex gap-2 mt-4 md:mt-0">
-                                <input className="bg-slate-800/80 border border-slate-600 text-white px-4 py-2 rounded-lg outline-none backdrop-blur-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 placeholder-slate-400" placeholder="Buscar..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
-                                <button onClick={() => setView('create')} className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all"><Icons.PlusCircle /> Crear Propio</button>
+                            <div className="relative z-10 flex flex-col sm:flex-row gap-2 w-full md:w-auto mt-2 md:mt-0">
+                                <input className="bg-slate-800/80 border border-slate-600 text-white px-4 py-2.5 rounded-lg outline-none backdrop-blur-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 placeholder-slate-400 w-full sm:w-auto" placeholder="Buscar..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
+                                <button onClick={() => setView('create')} className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2.5 rounded-lg font-bold shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all w-full sm:w-auto"><Icons.PlusCircle /> Crear Propio</button>
                             </div>
                             <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             {filtered.map(ind => {
                                 const isActive = activeIds.includes(ind.id);
                                 return (
-                                    <div key={ind.id} onClick={() => toggleIndicator(ind.id)} className={`p-6 rounded-2xl border-2 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-white relative group ${isActive ? 'border-cyan-500 shadow-cyan-100' : 'border-slate-200'}`}>
-                                        <div className="flex justify-between mb-3">
-                                            <Badge text={ind.type} type={ind.type}/><div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 text-slate-300'}`}><Icons.Check/></div>
+                                    <div key={ind.id} onClick={() => toggleIndicator(ind.id)} className={`p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-white relative group flex flex-col justify-between ${isActive ? 'border-cyan-500 shadow-cyan-100' : 'border-slate-200'}`}>
+                                        <div>
+                                            <div className="flex justify-between items-start mb-3">
+                                                <Badge text={ind.type} type={ind.type}/>
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 text-slate-300'}`}><Icons.Check/></div>
+                                            </div>
+                                            <h3 className={`font-bold text-lg mb-2 transition-colors leading-tight break-words ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>{ind.name}</h3>
+                                            <p className="text-sm text-slate-500">{ind.desc}</p>
                                         </div>
-                                        <h3 className={`font-bold text-lg mb-2 transition-colors ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>{ind.name}</h3>
-                                        <p className="text-sm text-slate-500 line-clamp-2">{ind.desc}</p>
                                         <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 flex justify-between font-mono"><span>{ind.function}</span><span>{ind.source}</span></div>
-                                        {ind.source === 'Personalizado' && <button onClick={(e)=>deleteCustom(e, ind.id)} className="absolute bottom-3 right-14 p-1 text-slate-300 hover:text-rose-500 transition-colors"><Icons.Trash/></button>}
+                                        {ind.source === 'Personalizado' && <button onClick={(e)=>deleteCustom(e, ind.id)} className="absolute bottom-3 right-14 p-1.5 text-slate-300 hover:text-rose-500 transition-colors"><Icons.Trash/></button>}
                                     </div>
                                 );
                             })}
@@ -960,12 +993,12 @@
                             <button onClick={() => setView('library')} className="text-slate-500 hover:text-cyan-600 font-bold transition-colors">← Volver al Catálogo</button>
                             <h2 className="text-2xl font-bold font-outfit text-slate-900">Crear Nuevo Indicador</h2>
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <Card className="p-6 border-t-4 border-t-slate-800">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                            <Card className="p-6 md:p-8 border-t-4 border-t-slate-800">
                                 <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b border-slate-100 pb-2">1. Configuración Técnica</h3>
                                 <form id="creator-form" onSubmit={handleCreate} className="space-y-4">
                                     <div><label className="text-xs font-bold text-slate-600 block mb-1">Nombre</label><input required className="input-field font-bold" value={form.name} onChange={e=>setForm({...form, name: e.target.value})} placeholder="Ej. Tasa de Cierre de Hallazgos" /></div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div><label className="text-xs font-bold text-slate-600 block mb-1">Tipo</label><select className="input-field" value={form.type} onChange={e=>setForm({...form, type: e.target.value})}><option>Proactivo</option><option>Reactivo</option></select></div>
                                         <div><label className="text-xs font-bold text-slate-600 block mb-1">Cálculo</label><select className="input-field" value={form.calc} onChange={e=>setForm({...form, calc: e.target.value})}><option value="percentage">%</option><option value="rate">Tasa (Factor K)</option><option value="count">Conteo (#)</option><option value="average">Promedio</option></select></div>
                                     </div>
@@ -973,16 +1006,16 @@
                                     <div><label className="text-xs font-bold text-slate-600 block mb-1">Descripción</label><textarea className="input-field" rows="2" value={form.desc} onChange={e=>setForm({...form, desc: e.target.value})} placeholder="Breve descripción del indicador..."></textarea></div>
                                 </form>
                             </Card>
-                            <Card className="p-6 bg-slate-900 text-white border-slate-800 shadow-xl shadow-cyan-900/10">
+                            <Card className="p-6 md:p-8 bg-slate-900 text-white border-slate-800 shadow-xl shadow-cyan-900/10">
                                 <h3 className="text-sm font-bold text-cyan-400 uppercase mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><Icons.Lightbulb /> 2. Profesor Virtual (Ayuda)</h3>
                                 <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div><label className="text-xs font-bold text-slate-400 block mb-1">A. Etiqueta Num.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelNum} onChange={e=>setForm({...form, help_labelNum: e.target.value})} /></div>
                                         <div><label className="text-xs font-bold text-slate-400 block mb-1">B. Etiqueta Den.</label><input className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" value={form.help_labelDen} onChange={e=>setForm({...form, help_labelDen: e.target.value})} /></div>
                                     </div>
                                     <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Qué es esto?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_what} onChange={e=>setForm({...form, help_what: e.target.value})}></textarea></div>
                                     <div><label className="text-xs font-bold text-slate-400 block mb-1">¿Por qué importa?</label><textarea className="input-field bg-slate-800 border-slate-600 text-white text-sm focus:border-cyan-500" rows="1" value={form.help_why} onChange={e=>setForm({...form, help_why: e.target.value})}></textarea></div>
-                                    <button type="submit" form="creator-form" className="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:-translate-y-0.5">Guardar Indicador</button>
+                                    <button type="submit" form="creator-form" className="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:-translate-y-0.5">Guardar Indicador</button>
                                 </div>
                             </Card>
                         </div>
@@ -993,32 +1026,32 @@
             return (
                 <div className="min-h-screen flex flex-col font-outfit text-slate-800 pb-20">
                     <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
-                        <div className="max-w-7xl mx-auto px-4 md:px-6 h-24 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <img src="https://assets.poap.xyz/04118473-016e-4c9a-83b6-6ae33fbbfd8f.png" alt="Academia Movida SST" className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] rounded-full border border-cyan-500/20" />
+                        <div className="max-w-7xl mx-auto px-4 md:px-6 h-auto md:h-24 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 md:gap-4 shrink-0">
+                                <img src="https://assets.poap.xyz/04118473-016e-4c9a-83b6-6ae33fbbfd8f.png" alt="Academia Movida SST" className="w-12 h-12 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] rounded-full border border-cyan-500/20" />
                                 <div>
-                                    <h1 className="font-extrabold text-xl md:text-2xl tracking-tight text-slate-900 leading-none mb-1">Academia Movida SST</h1>
-                                    <span className="text-[10px] md:text-xs font-bold text-cyan-600 tracking-widest uppercase bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">Indicadores de gestión de SST</span>
+                                    <h1 className="font-extrabold text-lg md:text-2xl tracking-tight text-slate-900 leading-none mb-1">Academia Movida SST</h1>
+                                    <span className="text-[9px] md:text-xs font-bold text-cyan-600 tracking-widest uppercase bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">Indicadores de gestión</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 md:gap-4">
-                                <div className="hidden md:flex bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                            <div className="flex items-center flex-wrap md:flex-nowrap gap-2 md:gap-4 w-full md:w-auto justify-end">
+                                <div className="hidden lg:flex bg-slate-100 p-1.5 rounded-xl border border-slate-200">
                                     {[{id:'library',l:'1. Catálogo'},{id:'input',l:'2. Datos'},{id:'dashboard',l:'3. Tablero'}].map(i=>(
                                         <button key={i.id} onClick={()=>setView(i.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${view===i.id?'bg-white text-cyan-700 shadow-md border border-slate-200':'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'}`}>{i.l}</button>
                                     ))}
                                 </div>
-                                <div className="md:hidden flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                                    {[{id:'library',l:'1'},{id:'input',l:'2'},{id:'dashboard',l:'3'}].map(i=>(
-                                        <button key={i.id} onClick={()=>setView(i.id)} className={`px-4 py-2 rounded-md text-sm font-bold ${view===i.id?'bg-white text-cyan-600 shadow border border-slate-200':'text-slate-500'}`}>{i.l}</button>
+                                <div className="flex lg:hidden bg-slate-100 p-1 rounded-lg border border-slate-200 w-full justify-between">
+                                    {[{id:'library',l:'Catálogo'},{id:'input',l:'Datos'},{id:'dashboard',l:'Tablero'}].map(i=>(
+                                        <button key={i.id} onClick={()=>setView(i.id)} className={`flex-1 px-2 py-2 rounded-md text-xs sm:text-sm font-bold text-center ${view===i.id?'bg-white text-cyan-600 shadow border border-slate-200':'text-slate-500'}`}>{i.l}</button>
                                     ))}
                                 </div>
-                                <div className="flex items-center gap-1 border-l border-slate-200 pl-2 md:pl-4 ml-1 md:ml-2">
-                                    <button onClick={loadDemoData} title="Cargar Demo" className="p-2 md:px-3 md:py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-indigo-100"><Icons.Play/> <span className="hidden md:inline">Demo</span></button>
-                                    <button onClick={resetData} title="Borrar Todo" className="p-2 md:px-3 md:py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl transition-all shadow-sm font-bold text-sm flex items-center gap-1.5 border border-rose-100"><Icons.Refresh/> <span className="hidden md:inline">Limpiar</span></button>
-                                    <button onClick={() => setShowSettings(true)} title="Configuración" className="p-2.5 bg-slate-900 text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shadow-lg hover:shadow-cyan-900/20 ml-1 md:ml-2"><Icons.Settings/></button>
-                                    <a href="https://movidasst.org/login/index.php" target="_blank" rel="noopener noreferrer" className="ml-2 hidden md:flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-cyan-500/30 transition-all hover:scale-105 border border-cyan-400/30">
-                                        Únete a la Academia <Icons.ExternalLink />
+                                <div className="flex items-center gap-1 md:border-l md:border-slate-200 md:pl-4">
+                                    <button onClick={loadDemoData} title="Cargar Demo" className="p-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all shadow-sm font-bold flex items-center gap-1.5 border border-indigo-100"><Icons.Play/></button>
+                                    <button onClick={resetData} title="Borrar Todo" className="p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition-all shadow-sm font-bold flex items-center gap-1.5 border border-rose-100"><Icons.Refresh/></button>
+                                    <button onClick={() => setShowSettings(true)} title="Configuración" className="p-2.5 bg-slate-900 text-cyan-400 hover:bg-slate-800 rounded-xl transition-all shadow-lg ml-1"><Icons.Settings/></button>
+                                    <a href="https://movidasst.org/login/index.php" target="_blank" rel="noopener noreferrer" className="ml-1 hidden xl:flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all border border-cyan-400/30 whitespace-nowrap">
+                                        Ir a Academia <Icons.ExternalLink />
                                     </a>
                                 </div>
                             </div>
