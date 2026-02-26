@@ -84,7 +84,6 @@
 
         // --- BASE DE DATOS MAESTRA ---
         const DEFAULT_LIBRARY = [
-            // VISION ZERO
             { id: 'VZ-1.1', source: 'Vision Zero', name: 'Compromiso Visible del Liderazgo', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 80, desc: 'Mide qué tan activos son los jefes en terreno.', help: { what: 'Muestra si los gerentes realmente bajan a planta.', why: 'El ejemplo arrastra y muestra compromiso real.', labelNum: 'Visitas realizadas', labelDen: 'Visitas programadas', example: 'El gerente hizo 2 de 4 visitas mensuales.' } },
             { id: 'VZ-1.2', source: 'Vision Zero', name: 'Liderazgo Competente', type: 'Proactivo', level: 'Estratégico', function: 'Liderazgo', unit: '%', calc: 'percentage', target: 100, desc: 'Nuevos directivos con criterios SST.', help: { what: '% de jefes contratados evaluando sus competencias en seguridad.', why: 'Evita ingresar líderes que no valoran la prevención.', labelNum: 'Líderes evaluados en SST', labelDen: 'Total líderes contratados', example: 'Se contrataron 3 gerentes, a los 3 se les evaluó en SST.' } },
             { id: 'VZ-2.1', source: 'Vision Zero', name: 'Eficacia en Control de Riesgos', type: 'Proactivo', level: 'Táctico', function: 'Seguridad', unit: '%', calc: 'percentage', target: 90, desc: 'Verifica si los controles realmente funcionan.', help: { what: '% de medidas de control inspeccionadas que son efectivas.', why: 'Tener el control en papel no basta, debe funcionar en terreno.', labelNum: 'Controles efectivos', labelDen: 'Controles evaluados', example: 'De 10 guardas de seguridad revisadas, 9 funcionaban bien.' } },
@@ -144,7 +143,7 @@
             ExternalLink: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
             Filter: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
             BookOpen: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
-            Info: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Radar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
         };
 
         const Card = ({ children, className = "", id }) => <div id={id} className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden break-inside-avoid ${className}`}>{children}</div>;
@@ -161,7 +160,7 @@
             return <span className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[text] || styles['Operativo']}`}>{text}</span>;
         };
 
-        // --- MOTOR GRÁFICO TOTALMENTE REDISEÑADO (Soporta valores negativos y 0 absoluto) ---
+        // --- MOTOR GRÁFICO TENDENCIA (Líneas) ---
         const TrendChart = ({ data, target, type }) => {
             const height = 120; 
             const width = 320; 
@@ -173,10 +172,9 @@
             const hasData = displayData.length > 0;
             const values = hasData ? displayData.map(d => parseFloat(d.val)) : [];
             
-            // Lógica robusta para mínimos (permite negativos) y máximos
             const targetVal = target !== undefined && target !== null && target !== '' ? parseFloat(target) : 0;
             const minRaw = Math.min(...(hasData ? values : [0]), targetVal, 0);
-            const minVal = minRaw < 0 ? minRaw * 1.2 : 0; // Margen hacia abajo si hay negativos
+            const minVal = minRaw < 0 ? minRaw * 1.2 : 0; 
             const maxVal = Math.max(...(hasData ? values : [0]), targetVal) * 1.2 || 5; 
             const range = maxVal - minVal;
             
@@ -184,7 +182,7 @@
             const calcX = (i) => values.length === 1 ? width / 2 : paddingX + (i * ((width - paddingX * 2) / (values.length - 1)));
 
             const targetY = target !== undefined && target !== null && target !== '' ? calcY(target) : null;
-            const zeroY = calcY(0); // Línea del Eje X (puede estar más arriba si hay negativos)
+            const zeroY = calcY(0); 
             const lineColor = type === 'Reactivo' ? '#e11d48' : '#06b6d4'; 
             
             let points = "";
@@ -195,10 +193,8 @@
             return (
                 <div className="relative w-full h-32 bg-slate-50/50 rounded-xl overflow-hidden border border-slate-100 mt-2">
                     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-                        {/* Línea base del Eje X (0 absoluto) */}
                         <line x1={paddingX} y1={zeroY} x2={width - paddingX} y2={zeroY} stroke="#cbd5e1" strokeWidth="1" />
                         
-                        {/* Línea punteada de Meta integrada */}
                         {targetY !== null && (
                             <>
                                 <line x1={0} y1={targetY} x2={width} y2={targetY} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8"/>
@@ -208,7 +204,6 @@
                         
                         {hasData ? (
                             <>
-                                {/* Sombreado dibuja desde el zeroY hacia el punto */}
                                 <polygon points={`${values.length === 1 ? width/2 : paddingX},${zeroY} ${points} ${values.length === 1 ? width/2 : width-paddingX},${zeroY}`} fill={lineColor} fillOpacity="0.1" />
                                 <polyline points={points} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                 
@@ -223,7 +218,6 @@
 
                                     return (
                                         <g key={i} className="group">
-                                            {/* Etiqueta del Mes siempre abajo del gráfico, no atada al zeroY */}
                                             <text x={x} y={height - 8} fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold" className="pointer-events-none">{d.month}{yearLabel}</text>
                                             <circle cx={x} cy={y} r="3.5" fill="white" stroke={lineColor} strokeWidth="2" className="transition-all cursor-pointer hover:stroke-4" />
                                             
@@ -239,6 +233,182 @@
                     </svg>
                     {data && data.length > 12 && <div className="absolute bottom-1 right-2 text-[9px] text-slate-400 font-mono">Mostrando ult 12m</div>}
                 </div>
+            );
+        };
+
+        // --- NUEVO: MOTOR GRÁFICO DE RADAR ISO 45004 ---
+        const PerformanceRadar = ({ indicators, records }) => {
+            // Necesitamos al menos 3 indicadores para formar un polígono
+            if (!indicators || indicators.length < 3) return null;
+
+            // Procesar y normalizar datos de 0 a 100%
+            const data = indicators.map(ind => {
+                const dataPts = records[ind.id] || [];
+                const lastValStr = dataPts.length ? dataPts[dataPts.length - 1].val : null;
+                const targetVal = parseFloat(ind.target) || 0;
+                
+                let score = 0;
+                
+                if (lastValStr === null) {
+                    score = 0; // Sin datos
+                } else {
+                    const val = parseFloat(lastValStr);
+                    
+                    if (ind.type === 'Reactivo') {
+                        // Reactivo: Menos es mejor. Si cumple meta = 100%. Si la supera negativamente, penalizamos.
+                        if (val <= targetVal) {
+                            score = 100;
+                        } else {
+                            if (targetVal === 0) {
+                                // Meta 0 pero tuvimos casos (penalización arbitraria por fallar el 0)
+                                score = Math.max(100 - (val * 10), 0);
+                            } else {
+                                // Ej: Meta 2.5, Tuvimos 5.0 -> (2.5 / 5.0) * 100 = 50%
+                                score = Math.max((targetVal / val) * 100, 0);
+                            }
+                        }
+                    } else {
+                        // Proactivo: Más es mejor.
+                        if (targetVal === 0) {
+                            score = 100; 
+                        } else {
+                            // Ej: Meta 90%, Tuvimos 45% -> (45 / 90) * 100 = 50%
+                            score = Math.min((val / targetVal) * 100, 100);
+                        }
+                    }
+                }
+
+                // Acortar nombre para que quepa en el radar
+                const shortName = ind.name.length > 18 ? ind.name.substring(0, 18) + '.' : ind.name;
+                
+                return { 
+                    label: shortName, 
+                    score: score || 0, // Fallback a 0
+                    rawVal: lastValStr || '-', 
+                    unit: ind.unit 
+                };
+            });
+
+            // Matemáticas SVG para el Radar
+            const size = 320;
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = (size / 2) - 45; // Espacio para los textos externos
+            const angleStep = (Math.PI * 2) / data.length;
+            const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0];
+
+            // Coordenadas del polígono de datos
+            const polygonPoints = data.map((d, i) => {
+                const r = radius * (d.score / 100);
+                const x = cx + r * Math.cos(i * angleStep - Math.PI / 2);
+                const y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
+                return `${x},${y}`;
+            }).join(' ');
+
+            return (
+                <Card id="card-radar" className="p-6 col-span-1 md:col-span-2 xl:col-span-3 bg-slate-900 border-none shadow-2xl shadow-cyan-900/10 mb-6 relative group overflow-visible">
+                    
+                    {/* Botón Descarga PNG oculto */}
+                    <button data-html2canvas-ignore="true" onClick={() => {
+                        const element = document.getElementById('card-radar');
+                        if (element && window.html2canvas) {
+                            window.html2canvas(element, { scale: 2, backgroundColor: '#0f172a', useCORS: true }).then(canvas => {
+                                const link = document.createElement('a'); link.download = `Radar_Desempeño_SST.png`; link.href = canvas.toDataURL('image/png'); link.click();
+                            });
+                        }
+                    }} title="Descargar Radar PNG" className="absolute top-4 right-4 p-2 bg-slate-800 hover:bg-cyan-900 text-slate-400 hover:text-cyan-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10">
+                        <Icons.Camera />
+                    </button>
+
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                        
+                        {/* Lado Izquierdo: Textos */}
+                        <div className="text-left w-full md:w-1/3">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><Icons.Radar /></div>
+                                <h3 className="font-bold text-white text-xl">Radar de Madurez ISO 45004</h3>
+                            </div>
+                            <p className="text-slate-400 text-sm mb-4">Visión holística del equilibrio de tu sistema. Calcula la distancia al cumplimiento de la meta (100% borde externo).</p>
+                            
+                            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3">Rendimiento por Área</h4>
+                                <ul className="space-y-2">
+                                    {data.map((d, idx) => (
+                                        <li key={idx} className="flex justify-between items-center text-sm">
+                                            <span className="text-cyan-100 truncate pr-2" title={d.label}>{d.label}</span>
+                                            <span className={`font-mono font-bold ${d.score >= 90 ? 'text-emerald-400' : d.score >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
+                                                {d.score.toFixed(0)}%
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Lado Derecho: SVG Gráfico */}
+                        <div className="w-full md:w-2/3 flex justify-center">
+                            <div className="relative w-full max-w-[340px] aspect-square">
+                                <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible">
+                                    
+                                    {/* Malla de Radar (Niveles) */}
+                                    {gridLevels.map((level, lvlIdx) => {
+                                        const levelPoints = data.map((_, i) => {
+                                            const r = radius * level;
+                                            const x = cx + r * Math.cos(i * angleStep - Math.PI / 2);
+                                            const y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
+                                            return `${x},${y}`;
+                                        }).join(' ');
+                                        return <polygon key={`lvl-${lvlIdx}`} points={levelPoints} fill={lvlIdx % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent"} stroke="#334155" strokeWidth="1" strokeDasharray={level === 1.0 ? "" : "2,2"} />
+                                    })}
+                                    
+                                    {/* Ejes desde el centro */}
+                                    {data.map((_, i) => {
+                                        const x = cx + radius * Math.cos(i * angleStep - Math.PI / 2);
+                                        const y = cy + radius * Math.sin(i * angleStep - Math.PI / 2);
+                                        return <line key={`axis-${i}`} x1={cx} y1={cy} x2={x} y2={y} stroke="#334155" strokeWidth="1" />
+                                    })}
+
+                                    {/* Polígono de Datos (Desempeño) */}
+                                    <polygon points={polygonPoints} fill="#06b6d4" fillOpacity="0.3" stroke="#06b6d4" strokeWidth="2.5" strokeLinejoin="round" />
+                                    
+                                    {/* Puntos y Tooltips Interactivos */}
+                                    {data.map((d, i) => {
+                                        const r = radius * (d.score / 100);
+                                        const x = cx + r * Math.cos(i * angleStep - Math.PI / 2);
+                                        const y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
+                                        return (
+                                            <g key={`pt-${i}`} className="group cursor-pointer">
+                                                {/* Punto Visible */}
+                                                <circle cx={x} cy={y} r="5" fill="#0f172a" stroke="#06b6d4" strokeWidth="2" className="transition-all group-hover:stroke-white group-hover:r-6" />
+                                                {/* Texto Original del Dato escondido en tag SVG title (accesibilidad) */}
+                                                <title>{d.label}: {d.rawVal} {d.unit} (Cumplimiento: {d.score.toFixed(0)}%)</title>
+                                            </g>
+                                        )
+                                    })}
+
+                                    {/* Etiquetas Externas */}
+                                    {data.map((d, i) => {
+                                        // Empujamos el texto más afuera del radio
+                                        const r = radius + 22; 
+                                        const x = cx + r * Math.cos(i * angleStep - Math.PI / 2);
+                                        const y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
+                                        
+                                        // Anclaje de texto dinámico para evitar que se salga del SVG
+                                        let anchor = "middle";
+                                        if (x < cx - 15) anchor = "end";
+                                        if (x > cx + 15) anchor = "start";
+                                        
+                                        return (
+                                            <text key={`lbl-${i}`} x={x} y={y} fontSize="10" fill="#94a3b8" textAnchor={anchor} alignmentBaseline="middle" fontWeight="bold" className="pointer-events-none">
+                                                {d.label}
+                                            </text>
+                                        )
+                                    })}
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
             );
         };
 
@@ -856,6 +1026,11 @@
                                 <button onClick={exportExcel} className="flex flex-1 items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-colors"><Icons.Download/> Excel</button>
                             </div>
                         </div>
+
+                        {/* --- NUEVO: RADAR DE DESEMPEÑO (Aparece si hay 3 o más KPIs) --- */}
+                        {filteredDashIndicators.length >= 3 && dashFilter === 'ALL' && (
+                            <PerformanceRadar indicators={filteredDashIndicators} records={records} />
+                        )}
 
                         {filteredDashIndicators.length === 0 ? (
                             <div className="text-center py-10 text-slate-400">No hay indicadores que coincidan con este filtro.</div>
